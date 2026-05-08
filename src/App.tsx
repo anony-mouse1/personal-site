@@ -18,6 +18,8 @@ const APP_TITLES: Record<AppId, string> = {
   safari: "Safari",
 };
 
+type Theme = "light" | "dark";
+
 export default function App() {
   const [windows, setWindows] = useState<WindowState[]>([
     { id: "notes", x: 120, y: 60, z: 1 },
@@ -25,11 +27,36 @@ export default function App() {
   const [topZ, setTopZ] = useState(1);
   const [activeApp, setActiveApp] = useState<AppId>("notes");
   const [now, setNow] = useState(new Date());
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
+    const saved = window.localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") return saved;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+  const [userOverrodeTheme, setUserOverrodeTheme] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("theme") !== null;
+  });
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (userOverrodeTheme) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => setTheme(e.matches ? "dark" : "light");
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [userOverrodeTheme]);
+
+  const toggleTheme = () => {
+    const next: Theme = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    setUserOverrodeTheme(true);
+    window.localStorage.setItem("theme", next);
+  };
 
   const openApp = (id: AppId) => {
     setActiveApp(id);
@@ -59,8 +86,8 @@ export default function App() {
     setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, x, y } : w)));
 
   return (
-    <div className="wallpaper relative w-full h-full overflow-hidden select-none">
-      <MenuBar appName={APP_TITLES[activeApp]} now={now} />
+    <div className={`wallpaper relative w-full h-full overflow-hidden select-none ${theme === "dark" ? "dark" : ""}`}>
+      <MenuBar appName={APP_TITLES[activeApp]} now={now} theme={theme} onToggleTheme={toggleTheme} />
 
       <DesktopIcons onOpen={openApp} />
 
@@ -87,7 +114,7 @@ export default function App() {
 }
 
 /* ==================== Menu bar ==================== */
-function MenuBar({ appName, now }: { appName: string; now: Date }) {
+function MenuBar({ appName, now, theme, onToggleTheme }: { appName: string; now: Date; theme: Theme; onToggleTheme: () => void }) {
   const time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const date = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
   return (
@@ -102,12 +129,37 @@ function MenuBar({ appName, now }: { appName: string; now: Date }) {
         <span className="opacity-90">Help</span>
       </div>
       <div className="flex items-center gap-3">
+        <button
+          onClick={onToggleTheme}
+          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          className="hover:bg-white/15 rounded px-1 py-0.5 transition-colors"
+        >
+          {theme === "light" ? <MoonIcon /> : <SunIcon />}
+        </button>
         <BatteryIcon />
         <WifiIcon />
         <ControlCenterIcon />
         <span>{date}  {time}</span>
       </div>
     </div>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
   );
 }
 
@@ -191,7 +243,7 @@ function Window({
       onMouseDown={onFocus}
     >
       <div
-        className="h-7 bg-[#e5e2e0]/95 flex items-center px-3 cursor-grab active:cursor-grabbing border-b border-black/10"
+        className="h-7 bg-[#e5e2e0]/95 dark:bg-[#2a2a2a]/95 flex items-center px-3 cursor-grab active:cursor-grabbing border-b border-black/10 dark:border-white/10"
         onMouseDown={onMouseDown}
       >
         <div className="flex gap-1.5 group">
@@ -227,14 +279,18 @@ type NoteMeta = {
 };
 
 function NotesApp() {
+  const now = new Date();
+  const shortDate = now.toLocaleDateString("en-US");
+  const longDate = `${now.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} at ${now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+
   const notes: NoteMeta[] = [
-    { id: "about", emoji: "📍", title: "about me", date: "4/30/2026", preview: "my name is fatimah (eecs @ berkeley...", group: "pinned", body: "about" },
-    { id: "where", emoji: "🔗", title: "where to find me", date: "4/30/2026", preview: "all the links in one place", group: "pinned", body: "where" },
-    { id: "now", emoji: "✨", title: "now", date: "4/30/2026", preview: "what I'm up to lately", group: "today", body: "now" },
-    { id: "press", emoji: "📰", title: "press", date: "4/30/2026", preview: "features, articles, mentions", group: "today", body: "press" },
-    { id: "guest", emoji: "📝", title: "guestbook", date: "4/29/2026", preview: "drop a piece of wisdom...", group: "yesterday", body: "guest" },
-    { id: "ideas", emoji: "💡", title: "ideas log", date: "4/26/2026", preview: "a place for half-baked thoughts", group: "previous", body: "ideas" },
-    { id: "favs", emoji: "🌷", title: "favorite things", date: "4/24/2026", preview: "a running list of favorite things", group: "previous", body: "favs" },
+    { id: "about", emoji: "📍", title: "about me", date: shortDate, preview: "my name is fatimah (eecs @ berkeley...", group: "pinned", body: "about" },
+    { id: "where", emoji: "🔗", title: "where to find me", date: shortDate, preview: "all the links in one place", group: "pinned", body: "where" },
+    { id: "now", emoji: "✨", title: "now", date: shortDate, preview: "what I'm up to lately", group: "today", body: "now" },
+    { id: "press", emoji: "📰", title: "press", date: shortDate, preview: "features, articles, mentions", group: "today", body: "press" },
+    { id: "guest", emoji: "📝", title: "guestbook", date: shortDate, preview: "drop a piece of wisdom...", group: "today", body: "guest" },
+    { id: "ideas", emoji: "💡", title: "ideas log", date: shortDate, preview: "a place for half-baked thoughts", group: "today", body: "ideas" },
+    { id: "favs", emoji: "🌷", title: "favorite things", date: shortDate, preview: "a running list of favorite things", group: "today", body: "favs" },
   ];
 
   const [selectedNote, setSelectedNote] = useState<string>("about");
@@ -248,18 +304,18 @@ function NotesApp() {
   ];
 
   return (
-    <div className="flex h-full text-[13px] text-gray-800">
-      <aside className="w-[300px] bg-[#fbfaf9] border-r border-black/5 flex flex-col flex-shrink-0">
+    <div className="flex h-full text-[13px] text-gray-800 dark:text-gray-200">
+      <aside className="w-[300px] bg-[#fbfaf9] dark:bg-[#1f1f21] border-r border-black/5 dark:border-white/5 flex flex-col flex-shrink-0">
         <div className="flex items-center justify-end px-3 pt-2 pb-1.5">
-          <button className="w-7 h-7 rounded-md hover:bg-black/5 flex items-center justify-center text-gray-600" aria-label="new note">
+          <button className="w-7 h-7 rounded-md hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-300" aria-label="new note">
             <ComposeIcon />
           </button>
         </div>
 
         <div className="px-3 mb-3">
-          <div className="bg-black/5 rounded-md flex items-center gap-2 px-2.5 py-1.5">
+          <div className="bg-black/5 dark:bg-white/10 rounded-md flex items-center gap-2 px-2.5 py-1.5">
             <SearchIconNotes />
-            <span className="text-gray-500 text-[13px]">Search</span>
+            <span className="text-gray-500 dark:text-gray-400 text-[13px]">Search</span>
           </div>
         </div>
 
@@ -269,7 +325,7 @@ function NotesApp() {
             if (items.length === 0) return null;
             return (
               <div key={g.key}>
-                <div className="px-4 pt-3 pb-1 text-[11px] text-gray-500 font-semibold uppercase tracking-wide">{g.label}</div>
+                <div className="px-4 pt-3 pb-1 text-[11px] text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">{g.label}</div>
                 {items.map((n) => (
                   <NoteListItem
                     key={n.id}
@@ -284,8 +340,8 @@ function NotesApp() {
         </div>
       </aside>
 
-      <div className="flex-1 overflow-y-auto bg-white px-12 py-8">
-        <NoteBody body={note.body} />
+      <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1a1a1c] px-12 py-8">
+        <NoteBody body={note.body} longDate={longDate} />
       </div>
     </div>
   );
@@ -296,15 +352,15 @@ function NoteListItem({ n, active, onClick }: { n: NoteMeta; active: boolean; on
     <button
       onClick={onClick}
       className={`w-full text-left px-4 py-2 transition-colors ${
-        active ? "bg-[#ffd400]/30" : "hover:bg-black/[0.03]"
+        active ? "bg-[#ffd400]/30 dark:bg-[#ffd400]/20" : "hover:bg-black/[0.03] dark:hover:bg-white/5"
       }`}
     >
       <div className="flex items-center gap-1.5">
         <span className="text-[13px]">{n.emoji}</span>
-        <span className="font-semibold text-gray-900 text-[13px]">{n.title}</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100 text-[13px]">{n.title}</span>
       </div>
       <div className="text-[11px] mt-0.5 truncate ml-[22px]">
-        <span className="text-gray-700">{n.date}</span> <span className="text-gray-500">{n.preview}</span>
+        <span className="text-gray-700 dark:text-gray-300">{n.date}</span> <span className="text-gray-500 dark:text-gray-400">{n.preview}</span>
       </div>
     </button>
   );
@@ -374,13 +430,13 @@ function LinkPreviewCard({
   );
 }
 
-function NoteBody({ body }: { body: string }) {
+function NoteBody({ body, longDate }: { body: string; longDate: string }) {
   const link = "text-orange-500 underline hover:text-orange-600";
 
   if (body === "about") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 30, 2026 at 1:05 AM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📍</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">about me</h1>
@@ -434,12 +490,29 @@ function NoteBody({ body }: { body: string }) {
   if (body === "press") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 30, 2026 at 1:48 AM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📰</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">press</h1>
         </div>
         <p className="text-gray-700 mb-5">features, articles, and mentions</p>
+
+        <h2 className="text-[15px] font-bold text-gray-800 mt-2 mb-3 uppercase tracking-wide">College</h2>
+        <LinkPreviewCard
+          url="https://chatgpt.com/futures/#finnie"
+          title="ChatGPT Futures 2026 Awardee"
+          description="Recognized as part of OpenAI's inaugural ChatGPT Futures Class of 2026 — 26 students/young builders honored for shipping with AI."
+          source="chatgpt.com"
+          date="May 6, 2026"
+        />
+        <LinkPreviewCard
+          url="https://www.allpeoplepower.com/"
+          title="APP Accelerator — First Place Winner: $15K Grant"
+          description="Won first place in the All People Powered (APP) Accelerator pitch competition for finnie, awarded a $15,000 grant from HiiiWAY to grow the platform."
+          source="allpeoplepower.com"
+          date="2026"
+          image="/press-app-accelerator.png"
+        />
         <LinkPreviewCard
           url="https://www.nytimes.com/2025/08/23/business/ai-female-hackers-foundher-house.html"
           title="In an All-Female Hacker House, Women Build the Next Wave of AI Startups"
@@ -449,6 +522,14 @@ function NoteBody({ body }: { body: string }) {
           image="/press-nyt.webp"
         />
         <LinkPreviewCard
+          url="https://www.usatoday.com/story/money/2025/08/20/silicon-valley-tech-women-hacker-houses/85521246007/"
+          title="Their rent is VC-backed and they're blasting Taylor Swift: Inside this all-female hacker house"
+          description="USA Today goes inside the all-female hacker house in Silicon Valley redefining what a tech founder looks like."
+          source="usatoday.com"
+          date="Aug 20, 2025"
+          image="/press-usatoday.png"
+        />
+        <LinkPreviewCard
           url="https://www.linkedin.com/posts/fatimah-hussain_mom-look-i-made-it-on-the-new-york-times-activity-7419828292716806144-GYWH"
           title="Featured on a New York Times Square billboard"
           description="Karat × fatimahs.guide — 300M views, 200K followers as an educational content creator, lit up in Times Square."
@@ -456,6 +537,16 @@ function NoteBody({ body }: { body: string }) {
           date="2025"
           image="/press-billboard.jpeg"
         />
+        <LinkPreviewCard
+          url="https://www.youtube.com/watch?v=CYl_3eL3o0w"
+          title="Pitching a meme app on the Tech Roast Show"
+          description="Got roasted (and pitched) live on the Tech Roast Show podcast."
+          source="youtube.com"
+          date="Tech Roast Show"
+          image="https://img.youtube.com/vi/CYl_3eL3o0w/maxresdefault.jpg"
+        />
+
+        <h2 className="text-[15px] font-bold text-gray-800 mt-6 mb-3 uppercase tracking-wide">High School</h2>
         <LinkPreviewCard
           url="https://www.youtube.com/watch?v=h3bRt453CVM"
           title="Breaking the feedback loop from Hell"
@@ -470,29 +561,43 @@ function NoteBody({ body }: { body: string }) {
           description="Bay Area teen entrepreneur kickstarts a local youth competition. The founder and the first-place winner joined KTVU live in-studio to talk about their award-winning businesses and the inspiration behind the competition."
           source="ktvu.com"
           date="KTVU FOX 2"
+          image="/press-shark-tank.png"
         />
         <LinkPreviewCard
-          url="https://www.youtube.com/watch?v=CYl_3eL3o0w"
-          title="Pitching a meme app on the Tech Roast Show"
-          description="Got roasted (and pitched) live on the Tech Roast Show podcast."
-          source="youtube.com"
-          date="Tech Roast Show"
-          image="https://img.youtube.com/vi/CYl_3eL3o0w/maxresdefault.jpg"
-        />
-        <LinkPreviewCard
-          url="https://www.instagram.com/reel/DUZVAKqkQmu/"
-          title="Tech Roast Show — clip"
-          description="A short clip from the Tech Roast Show pitch."
+          url="https://www.instagram.com/p/CnSzjKdPKtr/"
+          title="2022 San Ramon Outstanding Teen Citizenship Award"
+          description="Honored by the City of San Ramon Parks & Community Services with the Outstanding Teen Citizenship Award for community service and leadership."
           source="instagram.com"
-          date="Reel"
+          date="2022"
+          image="/press-citizenship-award.png"
         />
+
+        <h2 className="text-[15px] font-bold text-gray-800 mt-6 mb-3 uppercase tracking-wide">Brand Collaborations</h2>
+        <div className="grid grid-cols-3 gap-2 max-w-md mb-2">
+          {[
+            { name: "Microsoft", color: "from-blue-500 to-cyan-500" },
+            { name: "OpenAI", color: "from-gray-700 to-gray-900" },
+            { name: "Codex", color: "from-emerald-500 to-teal-700" },
+            { name: "ChatGPT", color: "from-green-500 to-emerald-700" },
+            { name: "Adobe", color: "from-red-500 to-rose-700" },
+            { name: "Notion", color: "from-gray-600 to-gray-800" },
+            { name: "Notion", color: "from-gray-600 to-gray-800" },
+          ].map((b, i) => (
+            <div
+              key={`${b.name}-${i}`}
+              className={`bg-gradient-to-br ${b.color} text-white rounded-lg px-3 py-3 text-center font-semibold text-[13px] shadow-sm`}
+            >
+              {b.name}
+            </div>
+          ))}
+        </div>
       </>
     );
   }
   if (body === "where") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 30, 2026 at 11:42 AM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">🔗</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">where to find me</h1>
@@ -512,7 +617,7 @@ function NoteBody({ body }: { body: string }) {
   if (body === "guest") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 29, 2026 at 9:14 PM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📝</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">guestbook</h1>
@@ -528,7 +633,7 @@ function NoteBody({ body }: { body: string }) {
   if (body === "favs") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 24, 2026 at 8:02 PM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">🌷</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">favorite things</h1>
@@ -545,7 +650,7 @@ function NoteBody({ body }: { body: string }) {
   if (body === "now") {
     return (
       <>
-        <div className="text-center text-[11px] text-gray-400 mb-5">April 30, 2026 at 12:38 AM</div>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">✨</span>
           <h1 className="text-[22px] font-bold text-gray-900 leading-none">now</h1>
@@ -561,7 +666,7 @@ function NoteBody({ body }: { body: string }) {
   }
   return (
     <>
-      <div className="text-center text-[11px] text-gray-400 mb-5">April 26, 2026 at 6:18 PM</div>
+      <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
       <div className="flex items-center gap-2 mb-4">
         <span className="text-xl">💡</span>
         <h1 className="text-[22px] font-bold text-gray-900 leading-none">ideas log</h1>
@@ -763,6 +868,14 @@ function PhotosHeartIcon({ active }: { active: boolean }) {
 
 /* ==================== Finder App ==================== */
 function FinderApp() {
+  const projects = [
+    { name: "Finnie", desc: "scholarship search tool helping students afford college", url: "https://findmescholarships.com" },
+    { name: "Workout Wizard", desc: "fitness companion that builds personalized workout plans", url: "#" },
+    { name: "Blackjack Jackpot Cards", desc: "iOS card game shipped to the App Store, hand-coded pre-AI", url: "#" },
+  ];
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<"open" | "trash" | "info" | null>(null);
+
   return (
     <div className="flex h-full text-[13px]">
       <aside className="w-48 bg-[#ebe8e6] border-r border-black/5 p-2">
@@ -772,21 +885,79 @@ function FinderApp() {
         <div className="px-2 py-1 rounded-md bg-blue-500 text-white flex items-center gap-2 mt-0.5">📂 Projects</div>
         <div className="px-2 py-1 rounded-md flex items-center gap-2 text-gray-800 mt-0.5">⬇ Downloads</div>
       </aside>
-      <div className="flex-1 p-4 overflow-y-auto bg-white">
-        <div className="text-xs text-gray-500 mb-3">Projects</div>
-        <div className="grid grid-cols-5 gap-4">
-          {[
-            { emoji: "🎓", name: "finnie", desc: "scholarship search tool helping students afford college" },
-            { emoji: "💪", name: "workout wizard", desc: "fitness companion that builds personalized workout plans" },
-            { emoji: "🃏", name: "blackjack jackpot cards", desc: "iOS card game shipped to the App Store, hand-coded pre-AI" },
-          ].map((p) => (
-            <div key={p.name} className="relative group flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-100 cursor-pointer">
-              <img src="/folder.webp" alt="" className="w-12 h-12 object-contain" draggable={false} />
-              <div className="text-xs text-gray-800 text-center">{p.emoji} {p.name}</div>
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 pointer-events-none bg-gray-900 text-white text-[11px] px-2 py-1 rounded-md whitespace-nowrap z-10 shadow-lg transition-opacity">
-                {p.desc}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"/>
+      <div className="flex-1 p-6 overflow-y-auto bg-white">
+        <div className="text-xs text-gray-500 mb-4">Projects</div>
+        <div className="grid grid-cols-3 gap-6">
+          {projects.map((p, idx) => (
+            <div
+              key={p.name}
+              className="relative flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 cursor-pointer"
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => { setHoveredIdx(null); setHoveredItem(null); }}
+            >
+              <div className="w-28 h-24 overflow-hidden flex items-start justify-center">
+                <img
+                  src="/folder-new.png"
+                  alt=""
+                  className="w-28 h-auto object-cover object-top"
+                  style={{ aspectRatio: "1 / 1" }}
+                  draggable={false}
+                />
               </div>
+              <div className="text-[13px] text-gray-800 text-center">{p.name}</div>
+
+              {hoveredIdx === idx && (
+                <div
+                  className="absolute left-1/2 top-full mt-1 -translate-x-1/2 z-20 rounded-lg py-1.5 min-w-[260px] text-[14px] text-white"
+                  style={{
+                    background: "rgba(30, 30, 32, 0.92)",
+                    backdropFilter: "blur(30px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                    boxShadow: "0 0 0 0.5px rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  <button
+                    onClick={() => { if (p.url !== "#") window.open(p.url, "_blank", "noopener,noreferrer"); }}
+                    onMouseEnter={() => setHoveredItem("open")}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`w-full text-left px-4 py-1.5 ${hoveredItem === "open" ? "bg-[#0a84ff] text-white" : ""}`}
+                  >
+                    Open in New Tab
+                  </button>
+                  <div className="h-px mx-3 my-1 bg-white/12" />
+                  <button
+                    onMouseEnter={() => setHoveredItem("trash")}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`w-full text-left px-4 py-1.5 ${hoveredItem === "trash" ? "bg-[#0a84ff] text-white" : ""}`}
+                  >
+                    Move to Trash
+                  </button>
+                  <div className="h-px mx-3 my-1 bg-white/12" />
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setHoveredItem("info")}
+                    onMouseLeave={() => setHoveredItem(null)}
+                  >
+                    <div className={`px-4 py-1.5 ${hoveredItem === "info" ? "bg-[#0a84ff] text-white" : ""}`}>
+                      Get Info
+                    </div>
+                    {hoveredItem === "info" && (
+                      <div
+                        className="absolute left-full top-0 ml-1 rounded-lg py-2.5 px-3.5 w-64 text-[12px] leading-snug text-white"
+                        style={{
+                          background: "rgba(30, 30, 32, 0.95)",
+                          backdropFilter: "blur(30px) saturate(180%)",
+                          WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                          boxShadow: "0 0 0 0.5px rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        <div className="font-semibold mb-1 text-[13px]">{p.name}</div>
+                        <div className="text-white/80">{p.desc}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1152,11 +1323,8 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
         {apps.map(({ id, Icon }) => {
           const isOpen = openIds.includes(id);
           return (
-            <button key={id} onClick={() => onOpen(id)} className="relative flex flex-col items-center group" aria-label={APP_TITLES[id]}>
-              <div className="absolute bottom-full mb-14 px-2.5 py-1 rounded-md bg-[#e8eae3]/95 text-gray-900 text-[13px] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 border border-black/10 shadow-md font-medium" style={{ backdropFilter: "blur(20px)" }}>
-                {APP_TITLES[id]}
-              </div>
-              <div className="dock-icon w-14 h-14 icon-shadow">
+            <button key={id} onClick={() => onOpen(id)} className="relative flex flex-col items-center" aria-label={APP_TITLES[id]}>
+              <div className="w-14 h-14 icon-shadow">
                 <Icon />
               </div>
               <div className={`w-1 h-1 rounded-full mt-1 ${isOpen ? "bg-white/80" : "bg-transparent"}`} />

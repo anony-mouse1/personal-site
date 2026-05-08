@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch *)",
+      "Bash(xargs -I {} ls -la \"{}\")",
+      "Bash(sort -k5 -n -r)",
+      "Bash(git config *)",
+      "Bash(echo \"buffer set to $\\(git config http.postBuffer\\)\")"
+    ]
+  }
+}

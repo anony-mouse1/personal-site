@@ -62,11 +62,12 @@ body {
 }
 
 .dock-icon {
-  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  transform-origin: bottom center;
 }
 
 .dock-icon:hover {
-  transform: translateY(-10px) scale(1.18);
+  transform: translateY(-26px) scale(1.85);
 }
 
 .icon-shadow {

@@ -7,16 +7,7 @@ type WindowState = {
   x: number;
   y: number;
   z: number;
-  width: number;
-  height: number;
-  maximized: boolean;
-  prevBounds?: { x: number; y: number; width: number; height: number };
 };
-
-const DEFAULT_W = 880;
-const DEFAULT_H = 580;
-const MENU_BAR_H = 28;
-const DOCK_RESERVE = 90;
 
 const APP_TITLES: Record<AppId, string> = {
   finder: "Finder",
@@ -29,7 +20,7 @@ const APP_TITLES: Record<AppId, string> = {
 
 export default function App() {
   const [windows, setWindows] = useState<WindowState[]>([
-    { id: "notes", x: 120, y: 60, z: 1, width: DEFAULT_W, height: DEFAULT_H, maximized: false },
+    { id: "notes", x: 120, y: 60, z: 1 },
   ]);
   const [topZ, setTopZ] = useState(1);
   const [activeApp, setActiveApp] = useState<AppId>("notes");
@@ -50,7 +41,7 @@ export default function App() {
         return ws.map((w) => (w.id === id ? { ...w, z: newZ } : w));
       }
       const offset = ws.length * 30;
-      return [...ws, { id, x: 130 + offset, y: 70 + offset, z: newZ, width: DEFAULT_W, height: DEFAULT_H, maximized: false }];
+      return [...ws, { id, x: 130 + offset, y: 70 + offset, z: newZ }];
     });
   };
 
@@ -64,28 +55,8 @@ export default function App() {
     setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, z: newZ } : w)));
   };
 
-  const updateWindow = (id: AppId, updates: Partial<WindowState>) =>
-    setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, ...updates } : w)));
-
-  const toggleMaximize = (id: AppId) => {
-    setWindows((ws) =>
-      ws.map((w) => {
-        if (w.id !== id) return w;
-        if (w.maximized && w.prevBounds) {
-          return { ...w, ...w.prevBounds, maximized: false, prevBounds: undefined };
-        }
-        return {
-          ...w,
-          prevBounds: { x: w.x, y: w.y, width: w.width, height: w.height },
-          x: 0,
-          y: MENU_BAR_H,
-          width: window.innerWidth,
-          height: window.innerHeight - MENU_BAR_H - DOCK_RESERVE,
-          maximized: true,
-        };
-      })
-    );
-  };
+  const moveWindow = (id: AppId, x: number, y: number) =>
+    setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, x, y } : w)));
 
   return (
     <div className="wallpaper relative w-full h-full overflow-hidden select-none">
@@ -99,8 +70,7 @@ export default function App() {
           state={w}
           onClose={() => closeWindow(w.id)}
           onFocus={() => focusWindow(w.id)}
-          onUpdate={(updates) => updateWindow(w.id, updates)}
-          onMaximize={() => toggleMaximize(w.id)}
+          onMove={(x, y) => moveWindow(w.id, x, y)}
         >
           {w.id === "notes" && <NotesApp />}
           {w.id === "bear" && <BearApp />}
@@ -184,33 +154,26 @@ function ControlCenterIcon() {
 }
 
 /* ==================== Window chrome ==================== */
-type ResizeDir = "t" | "r" | "b" | "l" | "tl" | "tr" | "br" | "bl";
-const MIN_W = 480;
-const MIN_H = 360;
-
 function Window({
   state,
   onClose,
   onFocus,
-  onUpdate,
-  onMaximize,
+  onMove,
   children,
 }: {
   state: WindowState;
   onClose: () => void;
   onFocus: () => void;
-  onUpdate: (updates: Partial<WindowState>) => void;
-  onMaximize: () => void;
+  onMove: (x: number, y: number) => void;
   children: React.ReactNode;
 }) {
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
-  const onTitleBarMouseDown = (e: React.MouseEvent) => {
-    if (state.maximized) return;
+  const onMouseDown = (e: React.MouseEvent) => {
     onFocus();
     dragRef.current = { dx: e.clientX - state.x, dy: e.clientY - state.y };
     const onMouseMove = (ev: MouseEvent) => {
       if (!dragRef.current) return;
-      onUpdate({ x: ev.clientX - dragRef.current.dx, y: ev.clientY - dragRef.current.dy });
+      onMove(ev.clientX - dragRef.current.dx, ev.clientY - dragRef.current.dy);
     };
     const onMouseUp = () => {
       dragRef.current = null;
@@ -221,51 +184,15 @@ function Window({
     window.addEventListener("mouseup", onMouseUp);
   };
 
-  const onResizeMouseDown = (e: React.MouseEvent, dir: ResizeDir) => {
-    if (state.maximized) return;
-    e.stopPropagation();
-    onFocus();
-    const startMouseX = e.clientX;
-    const startMouseY = e.clientY;
-    const startX = state.x;
-    const startY = state.y;
-    const startW = state.width;
-    const startH = state.height;
-
-    const onMouseMove = (ev: MouseEvent) => {
-      const dx = ev.clientX - startMouseX;
-      const dy = ev.clientY - startMouseY;
-      let newX = startX, newY = startY, newW = startW, newH = startH;
-      if (dir.includes("r")) newW = Math.max(MIN_W, startW + dx);
-      if (dir.includes("b")) newH = Math.max(MIN_H, startH + dy);
-      if (dir.includes("l")) {
-        newW = Math.max(MIN_W, startW - dx);
-        newX = startX + (startW - newW);
-      }
-      if (dir.includes("t")) {
-        newH = Math.max(MIN_H, startH - dy);
-        newY = startY + (startH - newH);
-      }
-      onUpdate({ x: newX, y: newY, width: newW, height: newH });
-    };
-    const onMouseUp = () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
-
   return (
     <div
       className="window-open absolute window-shadow rounded-xl overflow-hidden"
-      style={{ left: state.x, top: state.y, zIndex: state.z, width: state.width, height: state.height }}
+      style={{ left: state.x, top: state.y, zIndex: state.z, width: 880, height: 580 }}
       onMouseDown={onFocus}
     >
       <div
         className="h-7 bg-[#e5e2e0]/95 flex items-center px-3 cursor-grab active:cursor-grabbing border-b border-black/10"
-        onMouseDown={onTitleBarMouseDown}
-        onDoubleClick={(e) => { e.stopPropagation(); onMaximize(); }}
+        onMouseDown={onMouseDown}
       >
         <div className="flex gap-1.5 group">
           <button
@@ -278,29 +205,12 @@ function Window({
             </svg>
           </button>
           <button className="w-3 h-3 rounded-full bg-[#ffbd44] hover:brightness-95 transition" />
-          <button
-            onClick={(e) => { e.stopPropagation(); onMaximize(); }}
-            className="w-3 h-3 rounded-full bg-[#00ca4e] hover:brightness-95 transition"
-            aria-label={state.maximized ? "restore" : "maximize"}
-          />
+          <button className="w-3 h-3 rounded-full bg-[#00ca4e] hover:brightness-95 transition" />
         </div>
       </div>
       <div className="bg-white" style={{ height: "calc(100% - 1.75rem)", overflow: "hidden" }}>
         {children}
       </div>
-
-      {!state.maximized && (
-        <>
-          <div onMouseDown={(e) => onResizeMouseDown(e, "t")} className="absolute top-0 left-2 right-2 h-1 cursor-ns-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "b")} className="absolute bottom-0 left-2 right-2 h-1 cursor-ns-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "l")} className="absolute left-0 top-2 bottom-2 w-1 cursor-ew-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "r")} className="absolute right-0 top-2 bottom-2 w-1 cursor-ew-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "tl")} className="absolute top-0 left-0 w-3 h-3 cursor-nwse-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "tr")} className="absolute top-0 right-0 w-3 h-3 cursor-nesw-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "bl")} className="absolute bottom-0 left-0 w-3 h-3 cursor-nesw-resize z-20" />
-          <div onMouseDown={(e) => onResizeMouseDown(e, "br")} className="absolute bottom-0 right-0 w-3 h-3 cursor-nwse-resize z-20" />
-        </>
-      )}
     </div>
   );
 }
@@ -592,9 +502,9 @@ function NoteBody({ body }: { body: string }) {
           <li><a href="https://www.instagram.com/fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>instagram</a></li>
           <li><a href="https://twitter.com/fatimahs_tech" target="_blank" rel="noopener noreferrer" className={link}>twitter</a></li>
           <li><a href="https://www.tiktok.com/@fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>tiktok</a></li>
-          <li><a href="https://www.instagram.com/fatim4hhussain" target="_blank" rel="noopener noreferrer" className={link}>personal instagram</a></li>
           <li><a href="mailto:fatimahhussain@berkeley.edu" className={link}>email</a></li>
           <li><a href="https://www.linkedin.com/in/fatimah-hussain/" target="_blank" rel="noopener noreferrer" className={link}>linkedin</a></li>
+          <li><a href="https://www.instagram.com/fatim4hhussain" target="_blank" rel="noopener noreferrer" className={link}>personal instagram</a></li>
         </ul>
       </>
     );
@@ -1243,7 +1153,7 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
           const isOpen = openIds.includes(id);
           return (
             <button key={id} onClick={() => onOpen(id)} className="relative flex flex-col items-center group" aria-label={APP_TITLES[id]}>
-              <div className="absolute bottom-full mb-3 px-2.5 py-1 rounded-md bg-[#e8eae3]/95 text-gray-900 text-[12px] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 border border-black/10 shadow-md font-medium" style={{ backdropFilter: "blur(20px)" }}>
+              <div className="absolute bottom-full mb-14 px-2.5 py-1 rounded-md bg-[#e8eae3]/95 text-gray-900 text-[13px] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 border border-black/10 shadow-md font-medium" style={{ backdropFilter: "blur(20px)" }}>
                 {APP_TITLES[id]}
               </div>
               <div className="dock-icon w-14 h-14 icon-shadow">

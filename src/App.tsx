@@ -469,13 +469,13 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
         <ul className="list-disc pl-6 space-y-2 text-gray-800 leading-relaxed mb-8">
           <li>been building since I was 14</li>
           <li>ran children's business fairs in my hometown</li>
-          <li>had a math channel breaking down difficult math concepts in 2 minutes — 20k tiktok, 5k youtube subscribers</li>
+          <li>had a <a href="https://youtube.com/@2minmaths" target="_blank" rel="noopener noreferrer" className={link}>math channel</a> breaking down difficult math concepts in 2 minutes — 20k <a href="https://tiktok.com/@2minmaths" target="_blank" rel="noopener noreferrer" className={link}>tiktok</a>, 5k <a href="https://youtube.com/@2minmaths" target="_blank" rel="noopener noreferrer" className={link}>youtube</a> subscribers</li>
           <li>founded perky3dprints — a 3d printing business in high school that made five figures</li>
           <li>shipped blackjack jackpot cards to the app store (pre-ai tools, all hand-coded)</li>
           <li>did a <a href="https://www.ted.com/about/programs-initiatives/tedx-program" target="_blank" rel="noopener noreferrer" className={link}>tedx</a> talk in london and my hometown</li>
           <li>part of <a href="https://f.inc" target="_blank" rel="noopener noreferrer" className={link}>founders inc</a> offseason cohort</li>
           <li>
-            founding cohort of foundher house — all-female hacker house in sf
+            founding cohort of <a href="https://www.foundherhouse.org/" target="_blank" rel="noopener noreferrer" className={link}>foundher house</a> — all-female hacker house in sf
             <ul className="list-[circle] pl-6 space-y-1.5 mt-1.5">
               <li>featured in the new york times & usa today</li>
               <li>women in the house raised a total of $7m by the end of the cohort</li>
@@ -504,6 +504,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           description="Recognized as part of OpenAI's inaugural ChatGPT Futures Class of 2026 — 26 students/young builders honored for shipping with AI."
           source="chatgpt.com"
           date="May 6, 2026"
+          image="/press-chatgpt-futures.png"
         />
         <LinkPreviewCard
           url="https://www.allpeoplepower.com/"
@@ -536,6 +537,14 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           source="linkedin.com"
           date="2025"
           image="/press-billboard.jpeg"
+        />
+        <LinkPreviewCard
+          url="https://codetv.dev/series/web-dev-challenge/s3/e3-bring-people-together/play"
+          title="Web Dev Challenge S3E3 — An app to bring people together"
+          description="Featured on CodeTV's Web Dev Challenge: building an app to make us LESS lonely, maybe?"
+          source="codetv.dev"
+          date="Web Dev Challenge · S3E3"
+          image="/press-codex-challenge.png"
         />
         <LinkPreviewCard
           url="https://www.youtube.com/watch?v=CYl_3eL3o0w"

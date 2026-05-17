@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { PartnerWordmark, type PartnerId } from "./partnerWordmarks";
 
-type AppId = "finder" | "notes" | "spotify" | "photos" | "bear" | "safari";
+type AppId = "notes" | "spotify" | "photos" | "bear" | "safari";
 
 type WindowState = {
   id: AppId;
@@ -11,7 +11,6 @@ type WindowState = {
 };
 
 const APP_TITLES: Record<AppId, string> = {
-  finder: "Finder",
   notes: "Notes",
   spotify: "Spotify",
   photos: "Photos",
@@ -90,8 +89,6 @@ export default function App() {
     <div className={`wallpaper relative w-full h-full overflow-hidden select-none ${theme === "dark" ? "dark" : ""}`}>
       <MenuBar appName={APP_TITLES[activeApp]} now={now} theme={theme} onToggleTheme={toggleTheme} />
 
-      <DesktopIcons onOpen={openApp} />
-
       {windows.map((w) => (
         <Window
           key={w.id}
@@ -104,7 +101,6 @@ export default function App() {
           {w.id === "bear" && <BearApp />}
           {w.id === "safari" && <SafariApp />}
           {w.id === "photos" && <PhotosApp />}
-          {w.id === "finder" && <FinderApp />}
           {w.id === "spotify" && <SpotifyApp />}
         </Window>
       ))}
@@ -904,112 +900,6 @@ function PhotosHeartIcon({ active }: { active: boolean }) {
   );
 }
 
-/* ==================== Finder App ==================== */
-function FinderApp() {
-  const projects = [
-    { name: "Finnie", desc: "scholarship search tool helping students afford college", url: "https://findmescholarships.com" },
-    { name: "Workout Wizard", desc: "fitness companion that builds personalized workout plans", url: "#" },
-    { name: "Blackjack Jackpot Cards", desc: "iOS card game shipped to the App Store, hand-coded pre-AI", url: "#" },
-  ];
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [hoveredItem, setHoveredItem] = useState<"open" | "trash" | "info" | null>(null);
-
-  return (
-    <div className="flex h-full text-[13px]">
-      <aside className="w-48 bg-[#ebe8e6] border-r border-black/5 p-2">
-        <div className="text-[10px] text-gray-500 px-2 mb-1 mt-1 font-semibold tracking-wide">FAVORITES</div>
-        <div className="px-2 py-1 rounded-md flex items-center gap-2 text-gray-800">📁 Desktop</div>
-        <div className="px-2 py-1 rounded-md flex items-center gap-2 text-gray-800">📄 Documents</div>
-        <div className="px-2 py-1 rounded-md bg-blue-500 text-white flex items-center gap-2 mt-0.5">📂 Projects</div>
-        <div className="px-2 py-1 rounded-md flex items-center gap-2 text-gray-800 mt-0.5">⬇ Downloads</div>
-      </aside>
-      <div className="flex-1 overflow-y-auto bg-[#1c1c1e] text-[13px]">
-        <div className="p-6 pt-5 pb-10">
-          <div className="text-[11px] font-semibold text-white/35 uppercase tracking-wide mb-5 px-1">Projects</div>
-          <div className="flex flex-wrap gap-x-8 gap-y-8 justify-start content-start">
-          {projects.map((p, idx) => (
-            <div
-              key={p.name}
-              className="relative flex flex-col items-center w-[104px] shrink-0 py-1 px-1 rounded-lg hover:bg-white/[0.06] cursor-pointer transition-colors"
-              onMouseEnter={() => setHoveredIdx(idx)}
-              onMouseLeave={() => { setHoveredIdx(null); setHoveredItem(null); }}
-            >
-              <div className="w-[88px] h-[68px] flex items-center justify-center mb-1">
-                <img
-                  src="/finder-folder.png"
-                  alt=""
-                  className="max-h-[60px] w-auto max-w-[80px] object-contain select-none pointer-events-none"
-                  style={{ filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.35))" }}
-                  draggable={false}
-                />
-              </div>
-              <div className="text-center w-full px-0.5">
-                <div className="text-[13px] text-white leading-snug font-normal text-center max-w-[100px] mx-auto break-words line-clamp-3">
-                  {p.name}
-                </div>
-              </div>
-
-              {hoveredIdx === idx && (
-                <div
-                  className="absolute left-1/2 top-full mt-1 -translate-x-1/2 z-20 rounded-lg py-1.5 min-w-[260px] text-[14px] text-white"
-                  style={{
-                    background: "rgba(30, 30, 32, 0.92)",
-                    backdropFilter: "blur(30px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                    boxShadow: "0 0 0 0.5px rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.5)",
-                  }}
-                >
-                  <button
-                    onClick={() => { if (p.url !== "#") window.open(p.url, "_blank", "noopener,noreferrer"); }}
-                    onMouseEnter={() => setHoveredItem("open")}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    className={`w-full text-left px-4 py-1.5 ${hoveredItem === "open" ? "bg-[#0a84ff] text-white" : ""}`}
-                  >
-                    Open in New Tab
-                  </button>
-                  <div className="h-px mx-3 my-1 bg-white/12" />
-                  <button
-                    onMouseEnter={() => setHoveredItem("trash")}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    className={`w-full text-left px-4 py-1.5 ${hoveredItem === "trash" ? "bg-[#0a84ff] text-white" : ""}`}
-                  >
-                    Move to Trash
-                  </button>
-                  <div className="h-px mx-3 my-1 bg-white/12" />
-                  <div
-                    className="relative"
-                    onMouseEnter={() => setHoveredItem("info")}
-                    onMouseLeave={() => setHoveredItem(null)}
-                  >
-                    <div className={`px-4 py-1.5 ${hoveredItem === "info" ? "bg-[#0a84ff] text-white" : ""}`}>
-                      Get Info
-                    </div>
-                    {hoveredItem === "info" && (
-                      <div
-                        className="absolute left-full top-0 ml-1 rounded-lg py-2.5 px-3.5 w-64 text-[12px] leading-snug text-white"
-                        style={{
-                          background: "rgba(30, 30, 32, 0.95)",
-                          backdropFilter: "blur(30px) saturate(180%)",
-                          WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                          boxShadow: "0 0 0 0.5px rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.5)",
-                        }}
-                      >
-                        <div className="font-semibold mb-1 text-[13px]">{p.name}</div>
-                        <div className="text-white/80">{p.desc}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ==================== Spotify App ==================== */
 type Song = {
   t: string;
@@ -1317,46 +1207,9 @@ function AddUserSvg() {
   return (<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="9" r="3.5"/><path d="M4 19c0-3 3-5 7-5s7 2 7 5v1H4v-1z"/><path d="M19 5v6m-3-3h6" stroke="currentColor" strokeWidth="2" fill="none"/></svg>);
 }
 
-/* ==================== Desktop Icons ==================== */
-function DesktopIcons({ onOpen }: { onOpen: (id: AppId) => void }) {
-  const items = ["Documents", "Downloads", "Screenshots"];
-  return (
-    <div className="absolute top-10 right-4 flex flex-col gap-3 z-0">
-      {items.map((name) => (
-        <button
-          key={name}
-          onDoubleClick={() => onOpen("finder")}
-          onClick={() => onOpen("finder")}
-          className="flex flex-col items-center gap-1 w-20 group"
-          title={`Open ${name}`}
-        >
-          <div className="w-12 h-12 flex items-center justify-center group-hover:scale-105 transition">
-            <DesktopFolderIcon />
-          </div>
-          <div
-            className="text-[12px] text-white px-1.5 py-0.5 rounded leading-tight text-center group-hover:bg-blue-500/50"
-            style={{
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
-              textShadow: "0 1px 2px rgba(0,0,0,0.85)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {name}
-          </div>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function DesktopFolderIcon() {
-  return <img src="/folder.webp" alt="" className="w-12 h-12 object-contain drop-shadow-md" draggable={false} />;
-}
-
 /* ==================== Dock ==================== */
 function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId[] }) {
   const apps: { id: AppId; Icon: React.FC }[] = [
-    { id: "finder", Icon: FinderIcon },
     { id: "notes", Icon: NotesIcon },
     { id: "spotify", Icon: SpotifyIcon },
     { id: "photos", Icon: PhotosIcon },
@@ -1378,11 +1231,6 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
       </div>
     </div>
   );
-}
-
-/* ==================== Real-ish app icons (SVG) ==================== */
-function FinderIcon() {
-  return <img src="/icons/finder.png" alt="Finder" className="w-full h-full" draggable={false} />;
 }
 
 function NotesIcon() {

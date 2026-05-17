@@ -88,3 +88,9 @@ body {
 
 .dark .hover\:bg-gray-50:hover { background-color: #232326; }
 .dark .hover\:bg-gray-100:hover { background-color: #2a2a2d; }
+
+/* Notes app hyperlink color — mimics macOS Notes light mode */
+.notes-link { color: #B8860B; }
+.notes-link:hover { color: #9A7209; }
+.dark .notes-link { color: #E5B547; }
+.dark .notes-link:hover { color: #F0C766; }

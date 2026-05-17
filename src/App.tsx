@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { PartnerWordmark, type PartnerId } from "./partnerWordmarks";
 
 type AppId = "finder" | "notes" | "spotify" | "photos" | "bear" | "safari";
 
@@ -288,6 +289,7 @@ function NotesApp() {
     { id: "where", emoji: "🔗", title: "where to find me", date: shortDate, preview: "all the links in one place", group: "pinned", body: "where" },
     { id: "now", emoji: "✨", title: "now", date: shortDate, preview: "what I'm up to lately", group: "today", body: "now" },
     { id: "press", emoji: "📰", title: "press", date: shortDate, preview: "features, articles, mentions", group: "today", body: "press" },
+    { id: "brands", emoji: "🤝", title: "companies i've partnered up with", date: shortDate, preview: "tech, consumer goods, education", group: "today", body: "brands" },
     { id: "guest", emoji: "📝", title: "guestbook", date: shortDate, preview: "drop a piece of wisdom...", group: "today", body: "guest" },
     { id: "ideas", emoji: "💡", title: "ideas log", date: shortDate, preview: "a place for half-baked thoughts", group: "today", body: "ideas" },
     { id: "favs", emoji: "🌷", title: "favorite things", date: shortDate, preview: "a running list of favorite things", group: "today", body: "favs" },
@@ -431,7 +433,7 @@ function LinkPreviewCard({
 }
 
 function NoteBody({ body, longDate }: { body: string; longDate: string }) {
-  const link = "text-orange-500 underline hover:text-orange-600";
+  const link = "notes-link underline";
 
   if (body === "about") {
     return (
@@ -507,6 +509,14 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           image="/press-chatgpt-futures.png"
         />
         <LinkPreviewCard
+          url="https://www.fastcompany.com/91539141/students-receive-10000-prizes-from-openai-for-innovative-use-of-ai"
+          title="OpenAI awards students $10,000 prizes for innovative use of AI"
+          description="Fast Company covered OpenAI's ChatGPT Futures program, highlighting the students and young builders receiving $10,000 grants for using AI to build ambitious projects."
+          source="fastcompany.com"
+          date="May 2026"
+          image="/press-chatgpt-futures.png"
+        />
+        <LinkPreviewCard
           url="https://www.allpeoplepower.com/"
           title="APP Accelerator — First Place Winner: $15K Grant"
           description="Won first place in the All People Powered (APP) Accelerator pitch competition for finnie, awarded a $15,000 grant from HiiiWAY to grow the platform."
@@ -573,6 +583,14 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           image="/press-shark-tank.png"
         />
         <LinkPreviewCard
+          url="https://thewildcattribune.com/17839/news/learning-by-doing-how-fatimah-hussain-journeyed-through-her-1st-3d-printing-business/"
+          title="Learning by Doing: How Fatimah Hussain Journeyed Through her 1st 3D Printing Business"
+          description="Profile in The Wildcat Tribune on starting Unicorn Lock — a child-safe lock business — and the lessons of consistency, failure, and impact across four early ventures."
+          source="thewildcattribune.com"
+          date="Oct 10, 2023"
+          image="/press-wildcat-tribune.jpg"
+        />
+        <LinkPreviewCard
           url="https://www.instagram.com/p/CnSzjKdPKtr/"
           title="2022 San Ramon Outstanding Teen Citizenship Award"
           description="Honored by the City of San Ramon Parks & Community Services with the Outstanding Teen Citizenship Award for community service and leadership."
@@ -581,22 +599,33 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           image="/press-citizenship-award.png"
         />
 
-        <h2 className="text-[15px] font-bold text-gray-800 mt-6 mb-3 uppercase tracking-wide">Brand Collaborations</h2>
-        <div className="grid grid-cols-3 gap-2 max-w-md mb-2">
-          {[
-            { name: "Microsoft", color: "from-blue-500 to-cyan-500" },
-            { name: "OpenAI", color: "from-gray-700 to-gray-900" },
-            { name: "Codex", color: "from-emerald-500 to-teal-700" },
-            { name: "ChatGPT", color: "from-green-500 to-emerald-700" },
-            { name: "Adobe", color: "from-red-500 to-rose-700" },
-            { name: "Notion", color: "from-gray-600 to-gray-800" },
-            { name: "Notion", color: "from-gray-600 to-gray-800" },
-          ].map((b, i) => (
-            <div
-              key={`${b.name}-${i}`}
-              className={`bg-gradient-to-br ${b.color} text-white rounded-lg px-3 py-3 text-center font-semibold text-[13px] shadow-sm`}
-            >
-              {b.name}
+      </>
+    );
+  }
+  if (body === "brands") {
+    const sections: { title: string; partners: PartnerId[] }[] = [
+      { title: "Tech", partners: ["microsoft", "openai", "codex", "chatgpt", "adobe", "notion"] },
+      { title: "Consumer Goods", partners: ["clorox", "good-culture", "chiquita"] },
+      { title: "Education", partners: ["five-star"] },
+    ];
+    return (
+      <>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">🤝</span>
+          <h1 className="text-[22px] font-bold text-gray-900 leading-none">companies i've partnered up with</h1>
+        </div>
+        <p className="text-gray-700 mb-7">a running list, organized by category</p>
+
+        <div className="space-y-7 max-w-lg">
+          {sections.map((s) => (
+            <div key={s.title}>
+              <h2 className="text-[11px] font-semibold text-gray-500 uppercase tracking-[0.08em] mb-2.5">{s.title}</h2>
+              <div className="flex flex-wrap gap-2">
+                {s.partners.map((p) => (
+                  <PartnerWordmark key={p} id={p} />
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -894,26 +923,31 @@ function FinderApp() {
         <div className="px-2 py-1 rounded-md bg-blue-500 text-white flex items-center gap-2 mt-0.5">📂 Projects</div>
         <div className="px-2 py-1 rounded-md flex items-center gap-2 text-gray-800 mt-0.5">⬇ Downloads</div>
       </aside>
-      <div className="flex-1 p-6 overflow-y-auto bg-white">
-        <div className="text-xs text-gray-500 mb-4">Projects</div>
-        <div className="grid grid-cols-3 gap-6">
+      <div className="flex-1 overflow-y-auto bg-[#1c1c1e] text-[13px]">
+        <div className="p-6 pt-5 pb-10">
+          <div className="text-[11px] font-semibold text-white/35 uppercase tracking-wide mb-5 px-1">Projects</div>
+          <div className="flex flex-wrap gap-x-8 gap-y-8 justify-start content-start">
           {projects.map((p, idx) => (
             <div
               key={p.name}
-              className="relative flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 cursor-pointer"
+              className="relative flex flex-col items-center w-[104px] shrink-0 py-1 px-1 rounded-lg hover:bg-white/[0.06] cursor-pointer transition-colors"
               onMouseEnter={() => setHoveredIdx(idx)}
               onMouseLeave={() => { setHoveredIdx(null); setHoveredItem(null); }}
             >
-              <div className="w-28 h-24 overflow-hidden flex items-start justify-center">
+              <div className="w-[88px] h-[68px] flex items-center justify-center mb-1">
                 <img
-                  src="/folder-new.png"
+                  src="/finder-folder.png"
                   alt=""
-                  className="w-28 h-auto object-cover object-top"
-                  style={{ aspectRatio: "1 / 1" }}
+                  className="max-h-[60px] w-auto max-w-[80px] object-contain select-none pointer-events-none"
+                  style={{ filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.35))" }}
                   draggable={false}
                 />
               </div>
-              <div className="text-[13px] text-gray-800 text-center">{p.name}</div>
+              <div className="text-center w-full px-0.5">
+                <div className="text-[13px] text-white leading-snug font-normal text-center max-w-[100px] mx-auto break-words line-clamp-3">
+                  {p.name}
+                </div>
+              </div>
 
               {hoveredIdx === idx && (
                 <div
@@ -969,6 +1003,7 @@ function FinderApp() {
               )}
             </div>
           ))}
+          </div>
         </div>
       </div>
     </div>

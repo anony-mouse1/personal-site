@@ -48,19 +48,7 @@ body {
 }
 
 .glass-dock > button {
-  flex: 0 0 3.5rem !important;
-  width: 3.5rem !important;
-  height: auto !important;
-  filter: none !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-.glass-dock > button > .icon-shadow {
-  width: 3.5rem !important;
-  height: 3.5rem !important;
-  transform: none !important;
-  transition: none !important;
+  filter: none;
 }
 
 .window-shadow {

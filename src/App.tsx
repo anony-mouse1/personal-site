@@ -1248,11 +1248,37 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
     { id: "photos", Icon: PhotosIcon },
   ];
 
+  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [mouseX, setMouseX] = useState<number | null>(null);
+
+  const BASE_SIZE = 56;
+  const MAX_SCALE = 1.6;
+  const FALLOFF_PX = 110;
+
+  const getScale = (i: number) => {
+    if (mouseX === null) return 1;
+    const el = iconRefs.current[i];
+    if (!el) return 1;
+    const rect = el.getBoundingClientRect();
+    const center = rect.left + rect.width / 2;
+    const dist = Math.abs(mouseX - center);
+    if (dist > FALLOFF_PX) return 1;
+    const t = dist / FALLOFF_PX;
+    return 1 + (MAX_SCALE - 1) * Math.cos((t * Math.PI) / 2);
+  };
+
   return (
     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-40">
-      <div className="glass-dock rounded-2xl px-3 py-2 flex items-end gap-2 border border-white/40 shadow-2xl">
-        {apps.map(({ id, Icon }) => {
+      <div
+        className="glass-dock rounded-2xl px-3 flex items-end gap-3 border border-white/40 shadow-2xl overflow-visible"
+        style={{ height: BASE_SIZE + 24, paddingBottom: 8, paddingTop: 8 }}
+        onMouseMove={(e) => setMouseX(e.clientX)}
+        onMouseLeave={() => setMouseX(null)}
+      >
+        {apps.map(({ id, Icon }, i) => {
           const isOpen = openIds.includes(id);
+          const scale = getScale(i);
+          const size = BASE_SIZE * scale;
           return (
             <button
               key={id}
@@ -1260,10 +1286,17 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
               className="group relative flex flex-col items-center"
               aria-label={APP_TITLES[id]}
             >
-              <span className="pointer-events-none absolute bottom-full mb-2 rounded-md bg-white/85 px-2.5 py-1 text-[13px] text-black shadow-lg opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              <span
+                className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#e8e8e8]/95 px-3 py-1 text-[13px] font-medium text-black shadow-lg opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 z-10"
+                style={{ bottom: size + 14 }}
+              >
                 {APP_TITLES[id]}
               </span>
-              <div className="w-14 h-14 icon-shadow">
+              <div
+                ref={(el) => { iconRefs.current[i] = el; }}
+                className="icon-shadow"
+                style={{ width: size, height: size }}
+              >
                 <Icon />
               </div>
               <div className={`w-1 h-1 rounded-full mt-1 ${isOpen ? "bg-white/80" : "bg-transparent"}`} />

@@ -284,6 +284,7 @@ function NotesApp() {
     { id: "about", emoji: "📍", title: "about me", date: shortDate, preview: "my name is fatimah (eecs @ berkeley...", group: "pinned", body: "about" },
     { id: "where", emoji: "🔗", title: "where to find me", date: shortDate, preview: "all the links in one place", group: "pinned", body: "where" },
     { id: "now", emoji: "✨", title: "now", date: shortDate, preview: "what I'm up to lately", group: "today", body: "now" },
+    { id: "projects", emoji: "📚", title: "projects i've built", date: shortDate, preview: "things i've built and shipped", group: "today", body: "projects" },
     { id: "press", emoji: "📰", title: "press", date: shortDate, preview: "features, articles, mentions", group: "today", body: "press" },
     { id: "brands", emoji: "🤝", title: "companies i've partnered up with", date: shortDate, preview: "tech, consumer goods, education", group: "today", body: "brands" },
     { id: "guest", emoji: "📝", title: "guestbook", date: shortDate, preview: "drop a piece of wisdom...", group: "today", body: "guest" },
@@ -308,13 +309,6 @@ function NotesApp() {
           <button className="w-7 h-7 rounded-md hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-300" aria-label="new note">
             <ComposeIcon />
           </button>
-        </div>
-
-        <div className="px-3 mb-3">
-          <div className="bg-black/5 dark:bg-white/10 rounded-md flex items-center gap-2 px-2.5 py-1.5">
-            <SearchIconNotes />
-            <span className="text-gray-500 dark:text-gray-400 text-[13px]">Search</span>
-          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto pb-3">
@@ -368,15 +362,6 @@ function PinIconNotes() {
   return (
     <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
       <path d="M9.5 1.5l5 5-1.5 1.5-1-1-3 3 .5 3-1 1-3-3-3.5 3.5L1 14l3.5-3.5-3-3 1-1 3 .5 3-3-1-1z"/>
-    </svg>
-  );
-}
-
-function SearchIconNotes() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-gray-500">
-      <circle cx="11" cy="11" r="7"/>
-      <path d="M21 21l-4.3-4.3"/>
     </svg>
   );
 }
@@ -445,7 +430,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           <img
             src="/about-me.png"
             alt="fatimah in shibuya"
-            className="w-80 aspect-square object-cover rounded-xl shadow-md"
+            className="w-60 aspect-square object-cover rounded-xl shadow-md"
             style={{ objectPosition: "center 55%" }}
           />
         </div>
@@ -510,7 +495,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           description="Fast Company covered OpenAI's ChatGPT Futures program, highlighting the students and young builders receiving $10,000 grants for using AI to build ambitious projects."
           source="fastcompany.com"
           date="May 2026"
-          image="/press-chatgpt-futures.png"
+          image="/press-fastcompany-openai-prize.png"
         />
         <LinkPreviewCard
           url="https://www.allpeoplepower.com/"
@@ -595,6 +580,54 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           image="/press-citizenship-award.png"
         />
 
+      </>
+    );
+  }
+  if (body === "projects") {
+    const projects = [
+      {
+        name: "Finnie",
+        description: "a scholarship search tool helping students afford college through simpler, less overwhelming discovery",
+        url: "https://findmescholarships.com",
+      },
+      {
+        name: "Workout Wizard",
+        description: "a fitness companion that builds personalized workout plans",
+        url: "#",
+      },
+      {
+        name: "Blackjack Jackpot Cards",
+        description: "an iOS card game shipped to the App Store, hand-coded pre-AI tools",
+        url: "#",
+      },
+    ];
+
+    return (
+      <>
+        <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">📚</span>
+          <h1 className="text-[22px] font-bold text-gray-900 leading-none">projects i've built</h1>
+        </div>
+        <p className="text-gray-700 mb-6">things i've built and shipped</p>
+
+        <ul className="space-y-2 text-gray-800 list-disc pl-6 leading-relaxed">
+          {projects.map((project) => (
+            <li key={project.name}>
+              {project.url === "#" ? (
+                <span className={link}>{project.name}</span>
+              ) : (
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className={link}>
+                  {project.name}
+                </a>
+              )}{" "}
+              — {project.description}
+            </li>
+          ))}
+          <li>
+            <span className={link}>more coming soon...</span>
+          </li>
+        </ul>
       </>
     );
   }
@@ -1214,13 +1247,22 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
     { id: "spotify", Icon: SpotifyIcon },
     { id: "photos", Icon: PhotosIcon },
   ];
+
   return (
     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-40">
       <div className="glass-dock rounded-2xl px-3 py-2 flex items-end gap-2 border border-white/40 shadow-2xl">
         {apps.map(({ id, Icon }) => {
           const isOpen = openIds.includes(id);
           return (
-            <button key={id} onClick={() => onOpen(id)} className="relative flex flex-col items-center" aria-label={APP_TITLES[id]}>
+            <button
+              key={id}
+              onClick={() => onOpen(id)}
+              className="group relative flex flex-col items-center"
+              aria-label={APP_TITLES[id]}
+            >
+              <span className="pointer-events-none absolute bottom-full mb-2 rounded-md bg-white/85 px-2.5 py-1 text-[13px] text-black shadow-lg opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                {APP_TITLES[id]}
+              </span>
               <div className="w-14 h-14 icon-shadow">
                 <Icon />
               </div>

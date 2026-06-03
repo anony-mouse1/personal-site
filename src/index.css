@@ -47,6 +47,22 @@ body {
   -webkit-backdrop-filter: blur(50px) saturate(180%);
 }
 
+.glass-dock > button {
+  flex: 0 0 3.5rem !important;
+  width: 3.5rem !important;
+  height: auto !important;
+  filter: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.glass-dock > button > .icon-shadow {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 .window-shadow {
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.12),

@@ -1294,7 +1294,7 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
               </span>
               <div
                 ref={(el) => { iconRefs.current[i] = el; }}
-                className="icon-shadow"
+                className="icon-shadow transition-[width,height] duration-200 ease-out"
                 style={{ width: size, height: size }}
               >
                 <Icon />

@@ -1,176 +1,356 @@
 import type { ReactNode } from "react";
 
 export type PartnerId =
+  // Tech
   | "microsoft"
   | "openai"
   | "codex"
   | "chatgpt"
   | "adobe"
   | "notion"
+  | "lovable"
+  | "quillbot"
+  | "jobright"
+  | "soundcore"
+  | "whop"
+  // Consumer goods
   | "clorox"
   | "good-culture"
   | "chiquita"
-  | "five-star";
+  | "maruchan"
+  | "extra-gum"
+  | "zevo"
+  // Education
+  | "five-star"
+  | "lumiere-education"
+  | "aceable"
+  | "calkids"
+  | "abe"
+  // Finance
+  | "webull"
+  | "kraken";
 
-function Chip({ children }: { children: ReactNode }) {
+function Chip({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   return (
-    <span className="inline-flex items-center justify-center min-h-10 px-3.5 py-2 rounded-xl bg-white dark:bg-[#2a2a2c] border border-gray-200/90 dark:border-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-none">
+    <span
+      className={`inline-flex items-center gap-2 h-12 px-4 py-2 rounded-xl border shadow-[0_1px_2px_rgba(0,0,0,0.04)] ${
+        dark
+          ? "bg-[#0c0c0c] border-[#0c0c0c]"
+          : "bg-white dark:bg-[#2a2a2c] border-gray-200/90 dark:border-white/[0.08] dark:shadow-none"
+      }`}
+    >
       {children}
     </span>
   );
 }
 
-export function PartnerWordmark({ id }: { id: PartnerId }) {
-  const h = "block h-[18px] w-auto max-w-[148px] shrink-0";
+function LogoImg({ src, alt, h }: { src: string; alt: string; h: number }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      style={{ height: h }}
+      className="block w-auto max-w-[160px] object-contain"
+      draggable={false}
+    />
+  );
+}
 
+function IconAndName({
+  src,
+  name,
+  iconSize = 22,
+  font = "system-ui, sans-serif",
+  weight = 600,
+  fontSize = 15,
+  color = "#0d0d0d",
+  letterSpacing,
+}: {
+  src: string;
+  name: string;
+  iconSize?: number;
+  font?: string;
+  weight?: number;
+  fontSize?: number;
+  color?: string;
+  letterSpacing?: string;
+}) {
+  return (
+    <>
+      <img
+        src={src}
+        alt=""
+        style={{ height: iconSize, width: iconSize }}
+        className="block object-contain flex-shrink-0"
+        draggable={false}
+      />
+      <span
+        style={{ fontFamily: font, fontWeight: weight, fontSize, color, letterSpacing }}
+        className="dark:!text-gray-100 whitespace-nowrap"
+      >
+        {name}
+      </span>
+    </>
+  );
+}
+
+export function PartnerWordmark({ id }: { id: PartnerId }) {
   switch (id) {
+    /* ===== Tech ===== */
     case "microsoft":
-      return (
-        <Chip>
-          <svg className={h} viewBox="0 0 152 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <rect width="10.5" height="10.5" fill="#F65314" rx="0.5" />
-            <rect x="11.7" width="10.5" height="10.5" fill="#7FBA00" rx="0.5" />
-            <rect y="11.7" width="10.5" height="10.5" fill="#00A4EF" rx="0.5" />
-            <rect x="11.7" y="11.7" width="10.5" height="10.5" fill="#FFB900" rx="0.5" />
-            <text
-              x="29"
-              y="15.5"
-              fill="#737373"
-              className="dark:fill-[#c8c8cc]"
-              style={{ fontFamily: "Segoe UI, system-ui, sans-serif", fontSize: "13.5px", fontWeight: 600 }}
-            >
-              Microsoft
-            </text>
-          </svg>
-        </Chip>
-      );
+      return <Chip><LogoImg src="/logos/microsoft.svg" alt="Microsoft" h={22} /></Chip>;
     case "openai":
+      return <Chip><LogoImg src="/logos/openai.png" alt="OpenAI" h={20} /></Chip>;
+    case "chatgpt":
       return (
         <Chip>
-          <svg className={h} viewBox="0 0 72 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <text
-              x="0"
-              y="13.5"
-              fill="currentColor"
-              className="text-gray-900 dark:text-gray-100"
-              style={{ fontFamily: "system-ui, sans-serif", fontSize: "14px", fontWeight: 650, letterSpacing: "-0.045em" }}
-            >
-              OpenAI
-            </text>
-          </svg>
+          <IconAndName src="/logos/chatgpt.svg" name="ChatGPT" iconSize={22} />
         </Chip>
       );
     case "codex":
       return (
         <Chip>
-          <svg className={h} viewBox="0 0 54 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <text
-              x="0"
-              y="12.5"
-              fill="#12a37c"
-              style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "13px", fontWeight: 700, letterSpacing: "-0.03em" }}
-            >
-              Codex
-            </text>
-          </svg>
-        </Chip>
-      );
-    case "chatgpt":
-      return (
-        <Chip>
-          <svg className={`${h} max-w-[132px]`} viewBox="0 0 108 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <circle cx="10" cy="10" r="7.5" fill="#10A37F" opacity="0.2" />
-            <circle cx="10" cy="10" r="4.5" fill="#10A37F" />
-            <text x="21" y="14.5" fill="#10A37F" style={{ fontFamily: "system-ui, sans-serif", fontSize: "13px", fontWeight: 650, letterSpacing: "-0.02em" }}>
-              ChatGPT
-            </text>
-          </svg>
+          <IconAndName
+            src="/logos/openai.svg"
+            name="Codex"
+            iconSize={18}
+            font="ui-monospace, SFMono-Regular, Menlo, monospace"
+            weight={700}
+            color="#10A37F"
+          />
         </Chip>
       );
     case "adobe":
       return (
         <Chip>
-          <svg className={h} viewBox="0 0 78 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <rect width="22" height="22" rx="3" fill="#FA0F00" />
-            <text x="11" y="16.5" textAnchor="middle" fill="#fff" style={{ fontFamily: "system-ui, sans-serif", fontSize: "13px", fontWeight: 800 }}>
-              A
-            </text>
-            <text x="26" y="15.8" fill="#2D2D2D" className="dark:fill-[#e8e8ea]" style={{ fontFamily: "system-ui, sans-serif", fontSize: "14px", fontWeight: 700 }}>
-              Adobe
-            </text>
-          </svg>
+          <img src="/logos/adobe.svg" alt="" style={{ height: 28 }} className="block w-auto object-contain" draggable={false} />
+          <span style={{ fontFamily: "system-ui, sans-serif", fontWeight: 700, fontSize: 16, color: "#2D2D2D" }} className="dark:!text-gray-100">
+            Adobe
+          </span>
         </Chip>
       );
     case "notion":
       return (
         <Chip>
-          <svg className={`${h} max-w-[132px]`} viewBox="0 0 116 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <path fill="currentColor" className="text-gray-900 dark:text-gray-100" d="M4 4h6v6H4V4Zm8 0h6v6h-6V4ZM4 12h6v6H4v-6Zm8 0h6v6h-6v-6Z" opacity="0.95" />
-            <text x="22" y="15.5" fill="currentColor" className="text-gray-900 dark:text-gray-100" style={{ fontFamily: "ui-serif, Georgia, serif", fontSize: "14px", fontWeight: 600, letterSpacing: "-0.02em" }}>
-              Notion
-            </text>
-          </svg>
+          <IconAndName
+            src="/logos/notion.svg"
+            name="Notion"
+            iconSize={24}
+            font="ui-serif, Georgia, 'Times New Roman', serif"
+            fontSize={17}
+            color="#191918"
+            letterSpacing="-0.02em"
+          />
         </Chip>
       );
-    case "clorox":
+    case "lovable":
       return (
         <Chip>
-          <svg className={h} viewBox="0 0 96 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <text
-              x="0"
-              y="14"
-              fill="#0066B3"
-              style={{ fontFamily: "Arial Black, Helvetica Neue, sans-serif", fontSize: "14px", fontWeight: 900, letterSpacing: "0.02em" }}
-            >
-              CLOROX
-            </text>
-          </svg>
+          <IconAndName
+            src="/logos/lovable.svg"
+            name="Lovable"
+            iconSize={22}
+            font="ui-serif, Georgia, serif"
+            fontSize={16}
+            color="#F25C54"
+          />
         </Chip>
       );
+    case "quillbot":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/quillbot.png"
+            name="QuillBot"
+            iconSize={22}
+            fontSize={15}
+            color="#39855a"
+          />
+        </Chip>
+      );
+    case "jobright":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/jobright.png"
+            name="Jobright"
+            iconSize={22}
+            fontSize={15}
+            color="#1f1f1f"
+          />
+        </Chip>
+      );
+    case "soundcore":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/soundcore.png"
+            name="soundcore"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#000"
+            letterSpacing="-0.02em"
+          />
+        </Chip>
+      );
+    case "whop":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/whop.png"
+            name="Whop"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#FF6B2C"
+          />
+        </Chip>
+      );
+
+    /* ===== Consumer goods ===== */
+    case "clorox":
+      return <Chip><LogoImg src="/logos/clorox.svg" alt="Clorox" h={20} /></Chip>;
+    case "chiquita":
+      return <Chip><LogoImg src="/logos/chiquita.svg" alt="Chiquita" h={34} /></Chip>;
     case "good-culture":
       return (
         <Chip>
-          <svg className={`${h} max-w-[148px]`} viewBox="0 0 132 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <text
-              x="2"
-              y="15"
-              fill="#1a1a1a"
-              className="dark:fill-[#f0f0f2]"
-              style={{ fontFamily: "Georgia, Times New Roman, serif", fontSize: "13px", fontStyle: "italic", fontWeight: 600 }}
-            >
-              good culture
-            </text>
-          </svg>
+          <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontWeight: 600, fontSize: 18, color: "#1a1a1a", letterSpacing: "-0.01em" }} className="dark:!text-gray-100">
+            good culture
+          </span>
         </Chip>
       );
-    case "chiquita":
+    case "maruchan":
       return (
         <Chip>
-          <svg className={`${h} max-w-[132px]`} viewBox="0 0 118 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <path fill="#FFE135" d="M4 14c8-6 28-10 36-4 2 2 3 5 2 8-10 3-24 2-34-2l-4-2z" opacity="0.95" />
-            <text x="8" y="17" fill="#003DA5" style={{ fontFamily: "ui-serif, Georgia, serif", fontSize: "15px", fontStyle: "italic", fontWeight: 700 }}>
-              Chiquita
-            </text>
-          </svg>
+          <IconAndName
+            src="/logos/maruchan.svg"
+            name="Maruchan"
+            iconSize={26}
+            font="ui-serif, Georgia, serif"
+            weight={700}
+            fontSize={16}
+            color="#E4002B"
+          />
         </Chip>
       );
+    case "extra-gum":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/extra-gum.svg"
+            name="EXTRA"
+            iconSize={24}
+            weight={900}
+            fontSize={15}
+            color="#005CAB"
+            letterSpacing="0.02em"
+          />
+        </Chip>
+      );
+    case "zevo":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/zevo.png"
+            name="Zevo"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#00873E"
+          />
+        </Chip>
+      );
+
+    /* ===== Education ===== */
     case "five-star":
       return (
+        <span className="inline-flex flex-col items-center justify-center h-12 px-3 py-1 rounded-xl bg-[#0c0c0c] border border-[#0c0c0c] shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+          <span style={{ fontFamily: "ui-serif, 'Times New Roman', Georgia, serif", fontWeight: 700, fontSize: 12, color: "white", letterSpacing: "0.14em", lineHeight: 1 }}>
+            FIVE STAR
+          </span>
+          <span style={{ display: "flex", gap: 1, marginTop: 2 }}>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <svg key={i} width="6" height="6" viewBox="0 0 12 12" aria-hidden>
+                <path fill="#fff" d="M6 1l1.5 3.5 3.5.4-2.7 2.4.9 3.7L6 9.1 2.8 11l.9-3.7L1 4.9l3.5-.4z" />
+              </svg>
+            ))}
+          </span>
+          <span style={{ width: 38, height: 1.5, backgroundColor: "#d4a017", marginTop: 2 }} />
+        </span>
+      );
+    case "lumiere-education":
+      return (
         <Chip>
-          <svg className={`${h} max-w-[176px]`} viewBox="0 0 178 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <path fill="#E31837" d="m11 2.5 2.4 5 5.5.8-4 4 1 5.5L11 15.8 6.1 18l1-5.5-4-4 5.5-.8L11 2.5Z" />
-            <text x="22" y="15" fill="#231F20" className="dark:fill-[#e8e8ea]" style={{ fontFamily: "Arial Black, Helvetica Neue, sans-serif", fontSize: "11px", fontWeight: 900 }}>
-              Five Star
-            </text>
-            <text x="76" y="15" fill="#E31837" style={{ fontFamily: "system-ui, sans-serif", fontSize: "11px", fontWeight: 700 }}>
-              ®
-            </text>
-            <text x="84" y="14.5" fill="#555" className="dark:fill-[#aaa]" style={{ fontFamily: "system-ui, sans-serif", fontSize: "9.5px", fontWeight: 600 }}>
-              notebooks
-            </text>
-          </svg>
+          <IconAndName
+            src="/logos/lumiere-education.png"
+            name="Lumiere Education"
+            iconSize={22}
+            font="ui-serif, Georgia, serif"
+            weight={600}
+            fontSize={14}
+            color="#1a1a1a"
+          />
         </Chip>
       );
+    case "aceable":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/aceable.png"
+            name="Aceable"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#F26522"
+          />
+        </Chip>
+      );
+    case "calkids":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/calkids.png"
+            name="CalKIDS"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#1B3A6B"
+          />
+        </Chip>
+      );
+    case "abe":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/abe.png"
+            name="Abe"
+            iconSize={22}
+            weight={700}
+            fontSize={16}
+            color="#2C5282"
+          />
+        </Chip>
+      );
+
+    /* ===== Finance ===== */
+    case "webull":
+      return (
+        <Chip>
+          <IconAndName
+            src="/logos/webull.png"
+            name="Webull"
+            iconSize={22}
+            weight={700}
+            fontSize={15}
+            color="#0E6FFF"
+          />
+        </Chip>
+      );
+    case "kraken":
+      return <Chip><LogoImg src="/logos/kraken.svg" alt="Kraken" h={22} /></Chip>;
+
     default:
       return null;
   }

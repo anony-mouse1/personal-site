@@ -284,7 +284,7 @@ function NotesApp() {
     { id: "about", emoji: "📍", title: "about me", date: shortDate, preview: "my name is fatimah (eecs @ berkeley...", group: "pinned", body: "about" },
     { id: "where", emoji: "🔗", title: "where to find me", date: shortDate, preview: "all the links in one place", group: "pinned", body: "where" },
     { id: "now", emoji: "✨", title: "now", date: shortDate, preview: "what I'm up to lately", group: "today", body: "now" },
-    { id: "projects", emoji: "📚", title: "projects i've built", date: shortDate, preview: "things i've built and shipped", group: "today", body: "projects" },
+    { id: "projects", emoji: "📚", title: "things i've worked on", date: shortDate, preview: "things i've built and shipped", group: "today", body: "projects" },
     { id: "press", emoji: "📰", title: "press", date: shortDate, preview: "features, articles, mentions", group: "today", body: "press" },
     { id: "brands", emoji: "🤝", title: "companies i've partnered up with", date: shortDate, preview: "tech, consumer goods, education", group: "today", body: "brands" },
     { id: "guest", emoji: "📝", title: "guestbook", date: shortDate, preview: "drop a piece of wisdom...", group: "today", body: "guest" },
@@ -600,6 +600,11 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
         description: "an iOS card game shipped to the App Store, hand-coded pre-AI tools",
         url: "#",
       },
+      {
+        name: "Stan store",
+        description: "templates + resources for students and creators",
+        url: "https://stan.store/fatimahsguide",
+      },
     ];
 
     return (
@@ -607,7 +612,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
         <div className="text-center text-[11px] text-gray-400 mb-5">{longDate}</div>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📚</span>
-          <h1 className="text-[22px] font-bold text-gray-900 leading-none">projects i've built</h1>
+          <h1 className="text-[22px] font-bold text-gray-900 leading-none">things i've worked on</h1>
         </div>
         <p className="text-gray-700 mb-6">things i've built and shipped</p>
 
@@ -633,9 +638,10 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
   }
   if (body === "brands") {
     const sections: { title: string; partners: PartnerId[] }[] = [
-      { title: "Tech", partners: ["microsoft", "openai", "codex", "chatgpt", "adobe", "notion"] },
-      { title: "Consumer Goods", partners: ["clorox", "good-culture", "chiquita"] },
-      { title: "Education", partners: ["five-star"] },
+      { title: "Tech", partners: ["microsoft", "openai", "codex", "chatgpt", "adobe", "notion", "lovable", "quillbot", "jobright", "soundcore", "whop"] },
+      { title: "Consumer Goods", partners: ["clorox", "good-culture", "chiquita", "maruchan", "extra-gum", "zevo"] },
+      { title: "Education", partners: ["five-star", "lumiere-education", "aceable", "calkids", "abe"] },
+      { title: "Finance", partners: ["webull", "kraken"] },
     ];
     return (
       <>
@@ -677,6 +683,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
           <li><a href="mailto:fatimahhussain@berkeley.edu" className={link}>email</a></li>
           <li><a href="https://www.linkedin.com/in/fatimah-hussain/" target="_blank" rel="noopener noreferrer" className={link}>linkedin</a></li>
           <li><a href="https://www.instagram.com/fatim4hhussain" target="_blank" rel="noopener noreferrer" className={link}>personal instagram</a></li>
+          <li><a href="https://stan.store/fatimahsguide" target="_blank" rel="noopener noreferrer" className={link}>stan store</a> — templates + resources</li>
         </ul>
       </>
     );
@@ -724,9 +731,10 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
         </div>
         <p className="text-gray-800 mb-2">what I'm up to lately:</p>
         <ul className="list-disc pl-6 space-y-1.5 text-gray-800 leading-relaxed">
-          <li>building [project]</li>
-          <li>reading [book]</li>
-          <li>listening to [album]</li>
+          <li>currently in NYC — typically splitting my summers between SF and New York City</li>
+          <li>building more edtech tools to help students, and working with some cool companies</li>
+          <li>building out <a href="https://findmescholarships.com" target="_blank" rel="noopener noreferrer" className={link}>finnie</a>'s scholarship tool — recently won the <a href="https://chatgpt.com/futures/#finnie" target="_blank" rel="noopener noreferrer" className={link}>ChatGPT Futures grant</a></li>
+          <li>building out a mentorship program through <a href="https://www.instagram.com/fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>Fatimah's guide</a></li>
         </ul>
       </>
     );
@@ -824,41 +832,84 @@ function SafariApp() {
 }
 
 /* ==================== Photos App ==================== */
+// Every photo lives in src/assets/photos/library/ (auto-discovered, sorted by
+// filename). The Library tab shows them all; the Views & Travel and People tabs
+// show subsets, tagged by filename below. Drop a new image into library/ to add
+// it everywhere; add its name to a set below to tag it. See the README there.
+type Photo = { name: string; url: string };
+
+function loadPhotos(modules: Record<string, unknown>): Photo[] {
+  return Object.entries(modules)
+    .map(([path, url]) => ({ name: path.split("/").pop() ?? path, url: url as string }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const libraryPhotos = loadPhotos(
+  import.meta.glob("./assets/photos/library/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}", {
+    eager: true,
+    query: "?url",
+    import: "default",
+  })
+);
+
+// Tags — which library photos appear under each album tab.
+const TRAVEL_PHOTOS = new Set([
+  "photo-02.jpg", "photo-03.jpg", "photo-05.jpg", "photo-13.jpg", "photo-21.jpg",
+  "photo-23.jpg", "photo-24.jpg", "photo-26.jpg", "photo-28.jpg", "photo-29.jpg",
+  "photo-30.jpg", "photo-31.jpg", "photo-34.jpg", "photo-35.jpg", "photo-39.jpg",
+  "photo-42.jpg", "photo-45.jpg", "photo-52.jpg",
+]);
+const PEOPLE_PHOTOS = new Set([
+  "photo-01.jpg", "photo-04.jpg", "photo-06.jpg", "photo-07.jpg", "photo-08.jpg",
+  "photo-09.jpg", "photo-10.jpg", "photo-11.jpg", "photo-12.jpg", "photo-14.jpg",
+  "photo-15.jpg", "photo-16.jpg", "photo-17.jpg", "photo-18.jpg", "photo-19.jpg",
+  "photo-20.jpg", "photo-22.jpg", "photo-25.jpg", "photo-27.jpg", "photo-32.jpg",
+  "photo-33.jpg", "photo-36.jpg", "photo-37.jpg", "photo-38.jpg", "photo-40.jpg",
+  "photo-41.jpg", "photo-43.jpg", "photo-44.jpg", "photo-48.jpg", "photo-49.jpg",
+  "photo-50.jpg", "photo-51.jpg", "photo-53.jpg",
+]);
+// A few favorites for the Favorites tab.
+const FAVORITE_PHOTOS = new Set([
+  "photo-05.jpg", "photo-21.jpg", "photo-24.jpg", "photo-31.jpg",
+  "photo-28.jpg", "photo-17.jpg", "photo-26.jpg", "photo-35.jpg", "photo-37.jpg",
+  "photo-45.jpg",
+]);
+
+const travelPhotos = libraryPhotos.filter((p) => TRAVEL_PHOTOS.has(p.name));
+const peoplePhotos = libraryPhotos.filter((p) => PEOPLE_PHOTOS.has(p.name));
+const favoritePhotos = libraryPhotos.filter((p) => FAVORITE_PHOTOS.has(p.name));
+
+type PhotosView = "library" | "favorites" | "travel" | "people";
+
 function PhotosApp() {
-  const [view, setView] = useState<"library" | "favorites">("library");
-
-  const gradients = [
-    "from-rose-400 to-rose-700",
-    "from-orange-300 to-amber-500",
-    "from-amber-400 to-yellow-600",
-    "from-yellow-300 to-orange-400",
-    "from-lime-300 to-green-500",
-    "from-emerald-400 to-teal-600",
-    "from-teal-300 to-cyan-500",
-    "from-sky-400 to-blue-600",
-    "from-blue-500 to-indigo-700",
-    "from-indigo-400 to-purple-600",
-    "from-purple-500 to-fuchsia-600",
-    "from-fuchsia-400 to-pink-600",
-    "from-pink-300 to-rose-400",
-    "from-stone-400 to-stone-700",
-    "from-zinc-500 to-zinc-800",
-    "from-amber-700 to-stone-900",
-    "from-rose-300 to-orange-400",
-    "from-cyan-300 to-blue-400",
-    "from-violet-400 to-indigo-600",
-    "from-emerald-300 to-cyan-500",
-    "from-orange-400 to-red-600",
-    "from-yellow-400 to-amber-600",
-    "from-blue-300 to-purple-500",
-    "from-pink-400 to-fuchsia-600",
-    "from-green-500 to-emerald-700",
-  ];
-
-  const favoriteIndices = [0, 4, 7, 10, 13, 18, 22];
-  const tiles = view === "library" ? gradients : favoriteIndices.map((i) => gradients[i]);
+  const [view, setView] = useState<PhotosView>("library");
 
   const isLibrary = view === "library";
+  const isFavorites = view === "favorites";
+
+  const albumTabs: { id: PhotosView; label: string }[] = [
+    { id: "travel", label: "Views & Travel" },
+    { id: "people", label: "People" },
+  ];
+
+  const photosByView: Record<PhotosView, Photo[]> = {
+    library: libraryPhotos,
+    favorites: favoritePhotos,
+    travel: travelPhotos,
+    people: peoplePhotos,
+  };
+  const photos = photosByView[view];
+
+  const TITLES: Record<PhotosView, string> = {
+    library: "Library",
+    favorites: "Favorites",
+    travel: "Views & Travel",
+    people: "People",
+  };
+
+  const subtitle = isLibrary
+    ? "Nov 19, 2022 - Apr 29, 2026"
+    : `${photos.length} ${photos.length === 1 ? "Photo" : "Photos"}`;
 
   return (
     <div className="flex h-full bg-[#1c1c1e] text-gray-200 font-sans" style={{ fontSize: 13 }}>
@@ -876,23 +927,41 @@ function PhotosApp() {
         <button
           onClick={() => setView("favorites")}
           className={`px-2 py-[5px] rounded-[6px] flex items-center gap-2.5 text-left transition-colors ${
-            !isLibrary ? "bg-[#3a82f6]/20" : "hover:bg-white/5"
+            isFavorites ? "bg-[#3a82f6]/20" : "hover:bg-white/5"
           }`}
         >
-          <PhotosHeartIcon active={!isLibrary} />
-          <span className={!isLibrary ? "text-[#5ea7ff] font-medium" : "text-gray-200"}>Favorites</span>
+          <PhotosHeartIcon active={isFavorites} />
+          <span className={isFavorites ? "text-[#5ea7ff] font-medium" : "text-gray-200"}>Favorites</span>
         </button>
       </aside>
 
       <div className="flex-1 flex flex-col bg-[#1c1c1e] overflow-hidden">
-        <div className="flex items-start justify-between px-6 pt-4 pb-3 flex-shrink-0">
+        {/* Album tabs */}
+        <div className="flex items-center gap-1 px-6 pt-3 flex-shrink-0">
+          {albumTabs.map((t) => {
+            const active = view === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setView(t.id)}
+                className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium transition-colors ${
+                  active
+                    ? "bg-[#3a82f6] text-white"
+                    : "bg-[#2a2a2c] text-gray-300 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-start justify-between px-6 pt-3 pb-3 flex-shrink-0">
           <div>
             <h1 className="text-[22px] font-bold text-white leading-tight tracking-tight">
-              {isLibrary ? "Library" : "Favorites"}
+              {TITLES[view]}
             </h1>
-            <p className="text-[11px] text-gray-400 mt-1">
-              {isLibrary ? "Nov 19, 2022 - Apr 29, 2026" : `${tiles.length} Photos`}
-            </p>
+            <p className="text-[11px] text-gray-400 mt-1">{subtitle}</p>
           </div>
           {isLibrary && (
             <div className="flex items-center gap-0.5 bg-[#2a2a2c] rounded-md p-0.5 text-[12px]">
@@ -903,11 +972,29 @@ function PhotosApp() {
           )}
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2">
-          <div className="grid grid-cols-5 gap-0.5">
-            {tiles.map((g, i) => (
-              <div key={i} className={`aspect-square bg-gradient-to-br ${g} hover:opacity-90 transition cursor-pointer`} />
-            ))}
-          </div>
+          {photos.length > 0 ? (
+            <div className="grid grid-cols-5 gap-0.5">
+              {photos.map((p, i) => (
+                <div key={p.name} className="aspect-square overflow-hidden bg-black/30">
+                  <img
+                    src={p.url}
+                    alt={`${TITLES[view]} ${i + 1}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover hover:opacity-90 transition cursor-pointer"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center px-6 text-gray-500">
+              <p className="text-[14px] text-gray-300 font-medium">No photos yet</p>
+              <p className="text-[12px] mt-1 max-w-xs">
+                Add images to{" "}
+                <code className="text-gray-400">src/assets/photos/library/</code>{" "}
+                and they'll appear here automatically.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1244,7 +1331,6 @@ function AddUserSvg() {
 function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId[] }) {
   const apps: { id: AppId; Icon: React.FC }[] = [
     { id: "notes", Icon: NotesIcon },
-    { id: "spotify", Icon: SpotifyIcon },
     { id: "photos", Icon: PhotosIcon },
   ];
 

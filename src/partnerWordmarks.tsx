@@ -100,7 +100,18 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
     case "microsoft":
       return <Chip><LogoImg src="/logos/microsoft.svg" alt="Microsoft" h={22} /></Chip>;
     case "openai":
-      return <Chip><LogoImg src="/logos/openai.png" alt="OpenAI" h={20} /></Chip>;
+      return (
+        <span className="relative inline-flex group">
+          <Chip><LogoImg src="/logos/openai.png" alt="OpenAI" h={20} /></Chip>
+          {/* Hover to reveal OpenAI's products */}
+          <span className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-30 hidden group-hover:flex">
+            <span className="flex flex-col gap-2 p-2 rounded-xl bg-white dark:bg-[#1f1f21] border border-gray-200 dark:border-white/10 shadow-xl">
+              <PartnerWordmark id="chatgpt" />
+              <PartnerWordmark id="codex" />
+            </span>
+          </span>
+        </span>
+      );
     case "chatgpt":
       return (
         <Chip>
@@ -144,30 +155,9 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
         </Chip>
       );
     case "lovable":
-      return (
-        <Chip>
-          <IconAndName
-            src="/logos/lovable.svg"
-            name="Lovable"
-            iconSize={22}
-            font="ui-serif, Georgia, serif"
-            fontSize={16}
-            color="#F25C54"
-          />
-        </Chip>
-      );
+      return <Chip><LogoImg src="/logos/lovable-wordmark.png" alt="Lovable" h={18} /></Chip>;
     case "quillbot":
-      return (
-        <Chip>
-          <IconAndName
-            src="/logos/quillbot.png"
-            name="QuillBot"
-            iconSize={22}
-            fontSize={15}
-            color="#39855a"
-          />
-        </Chip>
-      );
+      return <Chip><LogoImg src="/logos/quillbot-wordmark.png" alt="QuillBot" h={24} /></Chip>;
     case "jobright":
       return (
         <Chip>
@@ -181,19 +171,7 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
         </Chip>
       );
     case "soundcore":
-      return (
-        <Chip>
-          <IconAndName
-            src="/logos/soundcore.png"
-            name="soundcore"
-            iconSize={22}
-            weight={700}
-            fontSize={15}
-            color="#000"
-            letterSpacing="-0.02em"
-          />
-        </Chip>
-      );
+      return <Chip><LogoImg src="/logos/soundcore.webp" alt="soundcore" h={18} /></Chip>;
     case "whop":
       return (
         <Chip>
@@ -236,19 +214,7 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
         </Chip>
       );
     case "extra-gum":
-      return (
-        <Chip>
-          <IconAndName
-            src="/logos/extra-gum.svg"
-            name="EXTRA"
-            iconSize={24}
-            weight={900}
-            fontSize={15}
-            color="#005CAB"
-            letterSpacing="0.02em"
-          />
-        </Chip>
-      );
+      return <Chip><LogoImg src="/logos/extra-gum.svg" alt="Extra" h={26} /></Chip>;
     case "zevo":
       return (
         <Chip>
@@ -266,19 +232,11 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
     /* ===== Education ===== */
     case "five-star":
       return (
-        <span className="inline-flex flex-col items-center justify-center h-12 px-3 py-1 rounded-xl bg-[#0c0c0c] border border-[#0c0c0c] shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
-          <span style={{ fontFamily: "ui-serif, 'Times New Roman', Georgia, serif", fontWeight: 700, fontSize: 12, color: "white", letterSpacing: "0.14em", lineHeight: 1 }}>
-            FIVE STAR
+        <Chip>
+          <span style={{ fontFamily: "system-ui, sans-serif", fontWeight: 700, fontSize: 15, color: "#0d0d0d", letterSpacing: "-0.01em" }} className="dark:!text-gray-100">
+            Five Star
           </span>
-          <span style={{ display: "flex", gap: 1, marginTop: 2 }}>
-            {[0, 1, 2, 3, 4].map((i) => (
-              <svg key={i} width="6" height="6" viewBox="0 0 12 12" aria-hidden>
-                <path fill="#fff" d="M6 1l1.5 3.5 3.5.4-2.7 2.4.9 3.7L6 9.1 2.8 11l.9-3.7L1 4.9l3.5-.4z" />
-              </svg>
-            ))}
-          </span>
-          <span style={{ width: 38, height: 1.5, backgroundColor: "#d4a017", marginTop: 2 }} />
-        </span>
+        </Chip>
       );
     case "lumiere-education":
       return (
@@ -349,7 +307,7 @@ export function PartnerWordmark({ id }: { id: PartnerId }) {
         </Chip>
       );
     case "kraken":
-      return <Chip><LogoImg src="/logos/kraken.svg" alt="Kraken" h={22} /></Chip>;
+      return <Chip><LogoImg src="/logos/kraken.webp" alt="Kraken" h={20} /></Chip>;
 
     default:
       return null;

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import { PartnerWordmark, type PartnerId } from "./partnerWordmarks";
+import { SpotifyApp } from "./spotifyApp";
 
-type AppId = "notes" | "spotify" | "photos" | "bear" | "safari";
+type AppId = "notes" | "spotify" | "photos" | "bear" | "safari" | "settings";
 
 type WindowState = {
   id: AppId;
@@ -16,9 +17,20 @@ const APP_TITLES: Record<AppId, string> = {
   photos: "Photos",
   bear: "Projects",
   safari: "Safari",
+  settings: "System Settings",
 };
 
 type Theme = "light" | "dark";
+
+type Wallpaper = { id: string; name: string; value: string };
+const WALLPAPERS: Wallpaper[] = [
+  { id: "sonoma-horizon", name: "Sonoma Horizon", value: 'url("/wallpaper.jpg")' },
+  { id: "sonoma", name: "Sonoma", value: "linear-gradient(150deg,#0a5d8a 0%,#1f9e6b 45%,#8fd14f 100%)" },
+  { id: "ventura", name: "Ventura", value: "linear-gradient(150deg,#f6a13c 0%,#f3603f 55%,#7a2e8e 100%)" },
+  { id: "monterey", name: "Monterey", value: "linear-gradient(150deg,#5b3df5 0%,#b06ab3 50%,#ff9bd2 100%)" },
+  { id: "big-sur", name: "Big Sur", value: "linear-gradient(160deg,#16315f 0%,#3a6ea5 45%,#e08a5b 100%)" },
+  { id: "twilight", name: "Twilight", value: "linear-gradient(160deg,#1e2a78 0%,#7d3ca5 55%,#ff6f91 100%)" },
+];
 
 export default function App() {
   const [windows, setWindows] = useState<WindowState[]>([
@@ -37,6 +49,15 @@ export default function App() {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("theme") !== null;
   });
+  const [wallpaper, setWallpaper] = useState<string>(() => {
+    if (typeof window === "undefined") return WALLPAPERS[0].value;
+    return window.localStorage.getItem("wallpaper") ?? WALLPAPERS[0].value;
+  });
+
+  const changeWallpaper = (value: string) => {
+    setWallpaper(value);
+    window.localStorage.setItem("wallpaper", value);
+  };
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
@@ -86,7 +107,10 @@ export default function App() {
     setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, x, y } : w)));
 
   return (
-    <div className={`wallpaper relative w-full h-full overflow-hidden select-none ${theme === "dark" ? "dark" : ""}`}>
+    <div
+      className={`wallpaper relative w-full h-full overflow-hidden select-none ${theme === "dark" ? "dark" : ""}`}
+      style={{ backgroundImage: wallpaper }}
+    >
       <MenuBar appName={APP_TITLES[activeApp]} now={now} theme={theme} onToggleTheme={toggleTheme} />
 
       {windows.map((w) => (
@@ -102,6 +126,14 @@ export default function App() {
           {w.id === "safari" && <SafariApp />}
           {w.id === "photos" && <PhotosApp />}
           {w.id === "spotify" && <SpotifyApp />}
+          {w.id === "settings" && (
+            <SettingsApp
+              theme={theme}
+              onToggleTheme={toggleTheme}
+              wallpaper={wallpaper}
+              onChangeWallpaper={changeWallpaper}
+            />
+          )}
         </Window>
       ))}
 
@@ -638,7 +670,7 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
   }
   if (body === "brands") {
     const sections: { title: string; partners: PartnerId[] }[] = [
-      { title: "Tech", partners: ["microsoft", "openai", "codex", "chatgpt", "adobe", "notion", "lovable", "quillbot", "jobright", "soundcore", "whop"] },
+      { title: "Tech", partners: ["microsoft", "openai", "adobe", "notion", "lovable", "quillbot", "jobright", "soundcore", "whop"] },
       { title: "Consumer Goods", partners: ["clorox", "good-culture", "chiquita", "maruchan", "extra-gum", "zevo"] },
       { title: "Education", partners: ["five-star", "lumiere-education", "aceable", "calkids", "abe"] },
       { title: "Finance", partners: ["webull", "kraken"] },
@@ -677,13 +709,13 @@ function NoteBody({ body, longDate }: { body: string; longDate: string }) {
         </div>
         <p className="text-gray-700 mb-4">all the links in one place</p>
         <ul className="space-y-2 text-gray-800 list-disc pl-6">
-          <li><a href="https://www.instagram.com/fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>instagram</a></li>
+          <li><a href="https://www.instagram.com/fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>instagram</a> (197k)</li>
           <li><a href="https://twitter.com/fatimahs_tech" target="_blank" rel="noopener noreferrer" className={link}>twitter</a></li>
-          <li><a href="https://www.tiktok.com/@fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>tiktok</a></li>
+          <li><a href="https://www.tiktok.com/@fatimahs.guide" target="_blank" rel="noopener noreferrer" className={link}>tiktok</a> (45k)</li>
           <li><a href="mailto:fatimahhussain@berkeley.edu" className={link}>email</a></li>
-          <li><a href="https://www.linkedin.com/in/fatimah-hussain/" target="_blank" rel="noopener noreferrer" className={link}>linkedin</a></li>
+          <li><a href="https://www.linkedin.com/in/fatimah-hussain/" target="_blank" rel="noopener noreferrer" className={link}>linkedin</a> (20k)</li>
           <li><a href="https://www.instagram.com/fatim4hhussain" target="_blank" rel="noopener noreferrer" className={link}>personal instagram</a></li>
-          <li><a href="https://stan.store/fatimahsguide" target="_blank" rel="noopener noreferrer" className={link}>stan store</a> — templates + resources</li>
+          <li><a href="https://stan.store/fatimahsguide" target="_blank" rel="noopener noreferrer" className={link}>stan store</a> — templates + resources for high school & college students, all in one hub</li>
         </ul>
       </>
     );
@@ -877,12 +909,15 @@ const FAVORITE_PHOTOS = new Set([
 
 const travelPhotos = libraryPhotos.filter((p) => TRAVEL_PHOTOS.has(p.name));
 const peoplePhotos = libraryPhotos.filter((p) => PEOPLE_PHOTOS.has(p.name));
-const favoritePhotos = libraryPhotos.filter((p) => FAVORITE_PHOTOS.has(p.name));
 
 type PhotosView = "library" | "favorites" | "travel" | "people";
 
 function PhotosApp() {
   const [view, setView] = useState<PhotosView>("library");
+  // Which photo (index into the current view's list) is open in the detail view.
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  // Favorites are interactive — toggled from the detail view, reflected in the Favorites tab.
+  const [favorites, setFavorites] = useState<Set<string>>(() => new Set(FAVORITE_PHOTOS));
 
   const isLibrary = view === "library";
   const isFavorites = view === "favorites";
@@ -894,7 +929,7 @@ function PhotosApp() {
 
   const photosByView: Record<PhotosView, Photo[]> = {
     library: libraryPhotos,
-    favorites: favoritePhotos,
+    favorites: libraryPhotos.filter((p) => favorites.has(p.name)),
     travel: travelPhotos,
     people: peoplePhotos,
   };
@@ -907,82 +942,96 @@ function PhotosApp() {
     people: "People",
   };
 
+  const todayLabel = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
   const subtitle = isLibrary
-    ? "Nov 19, 2022 - Apr 29, 2026"
+    ? `Jan 2025 - ${todayLabel}`
     : `${photos.length} ${photos.length === 1 ? "Photo" : "Photos"}`;
 
+  // Close the detail view whenever the tab changes (indices wouldn't line up).
+  useEffect(() => {
+    setSelectedIndex(null);
+  }, [view]);
+
+  const showPrev = () =>
+    setSelectedIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
+  const showNext = () =>
+    setSelectedIndex((i) => (i === null ? i : (i + 1) % photos.length));
+
+  // Keyboard navigation while the detail view is open.
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedIndex(null);
+      else if (e.key === "ArrowLeft")
+        setSelectedIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
+      else if (e.key === "ArrowRight")
+        setSelectedIndex((i) => (i === null ? i : (i + 1) % photos.length));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedIndex, photos.length]);
+
+  const toggleFavorite = (name: string) =>
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+
+  const selected = selectedIndex !== null ? photos[selectedIndex] : null;
+
   return (
-    <div className="flex h-full bg-[#1c1c1e] text-gray-200 font-sans" style={{ fontSize: 13 }}>
-      <aside className="w-56 bg-[#2a2a2c] border-r border-black/40 p-3 flex flex-col gap-0.5 flex-shrink-0">
-        <div className="text-[11px] text-gray-500 px-2 mt-1 mb-1 font-semibold tracking-[0.06em]">LIBRARY</div>
-        <button
-          onClick={() => setView("library")}
-          className={`px-2 py-[5px] rounded-[6px] flex items-center gap-2.5 text-left transition-colors ${
-            isLibrary ? "bg-[#3a82f6]/20" : "hover:bg-white/5"
-          }`}
-        >
+    <div className="relative flex h-full bg-[#1c1c1e] text-gray-200 font-sans" style={{ fontSize: 13 }}>
+      <aside className="w-56 bg-[#222224] border-r border-black/40 px-2.5 py-3 flex flex-col gap-0.5 flex-shrink-0">
+        <div className="text-[11px] text-gray-500 px-2.5 mt-1 mb-1 font-semibold tracking-[0.08em]">LIBRARY</div>
+        <SidebarRow active={isLibrary} onClick={() => setView("library")} label="Library">
           <PhotosLibraryIcon active={isLibrary} />
-          <span className={isLibrary ? "text-[#5ea7ff] font-medium" : "text-gray-200"}>Library</span>
-        </button>
-        <button
-          onClick={() => setView("favorites")}
-          className={`px-2 py-[5px] rounded-[6px] flex items-center gap-2.5 text-left transition-colors ${
-            isFavorites ? "bg-[#3a82f6]/20" : "hover:bg-white/5"
-          }`}
-        >
+        </SidebarRow>
+        <SidebarRow active={isFavorites} onClick={() => setView("favorites")} label="Favorites">
           <PhotosHeartIcon active={isFavorites} />
-          <span className={isFavorites ? "text-[#5ea7ff] font-medium" : "text-gray-200"}>Favorites</span>
-        </button>
+        </SidebarRow>
+
+        <div className="text-[11px] text-gray-500 px-2.5 mt-4 mb-1 font-semibold tracking-[0.08em]">COLLECTIONS</div>
+        {albumTabs.map((t) => {
+          const active = view === t.id;
+          return (
+            <SidebarRow key={t.id} active={active} onClick={() => setView(t.id)} label={t.label}>
+              <PhotosFolderIcon active={active} />
+            </SidebarRow>
+          );
+        })}
       </aside>
 
       <div className="flex-1 flex flex-col bg-[#1c1c1e] overflow-hidden">
-        {/* Album tabs */}
-        <div className="flex items-center gap-1 px-6 pt-3 flex-shrink-0">
-          {albumTabs.map((t) => {
-            const active = view === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setView(t.id)}
-                className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium transition-colors ${
-                  active
-                    ? "bg-[#3a82f6] text-white"
-                    : "bg-[#2a2a2c] text-gray-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex items-start justify-between px-6 pt-3 pb-3 flex-shrink-0">
+        <div className="flex items-start justify-between px-6 pt-5 pb-3 flex-shrink-0">
           <div>
             <h1 className="text-[22px] font-bold text-white leading-tight tracking-tight">
               {TITLES[view]}
             </h1>
             <p className="text-[11px] text-gray-400 mt-1">{subtitle}</p>
           </div>
-          {isLibrary && (
-            <div className="flex items-center gap-0.5 bg-[#2a2a2c] rounded-md p-0.5 text-[12px]">
-              <button className="px-3 py-1 rounded text-gray-300 hover:text-white">Years</button>
-              <button className="px-3 py-1 rounded text-gray-300 hover:text-white">Months</button>
-              <button className="px-3 py-1 rounded bg-white/15 text-white font-medium">All Photos</button>
-            </div>
-          )}
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2">
           {photos.length > 0 ? (
             <div className="grid grid-cols-5 gap-0.5">
               {photos.map((p, i) => (
-                <div key={p.name} className="aspect-square overflow-hidden bg-black/30">
+                <button
+                  key={p.name}
+                  onClick={() => setSelectedIndex(i)}
+                  className="aspect-square overflow-hidden bg-black/30 group"
+                >
                   <img
                     src={p.url}
                     alt={`${TITLES[view]} ${i + 1}`}
                     loading="lazy"
-                    className="w-full h-full object-cover hover:opacity-90 transition cursor-pointer"
+                    className="w-full h-full object-cover group-hover:opacity-90 transition cursor-pointer"
                   />
-                </div>
+                </button>
               ))}
             </div>
           ) : (
@@ -997,334 +1046,938 @@ function PhotosApp() {
           )}
         </div>
       </div>
+
+      {/* Single-photo detail view (macOS Photos style) */}
+      {selected && selectedIndex !== null && (
+        <div className="absolute inset-0 z-30 flex flex-col bg-[#1c1c1e]">
+          <div className="flex items-center justify-between h-12 px-4 flex-shrink-0 text-white">
+            <button
+              onClick={() => setSelectedIndex(null)}
+              aria-label="Back"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            >
+              <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.5 1L1.5 9l8 8" />
+              </svg>
+            </button>
+            <div className="text-center leading-tight">
+              <div className="text-[13px] font-semibold text-white">{TITLES[view]}</div>
+              <div className="text-[11px] text-gray-400">
+                {selectedIndex + 1} of {photos.length}
+              </div>
+            </div>
+            <button
+              onClick={() => toggleFavorite(selected.name)}
+              aria-label={favorites.has(selected.name) ? "Remove from Favorites" : "Add to Favorites"}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            >
+              <svg
+                width="21" height="21" viewBox="0 0 24 24" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+                fill={favorites.has(selected.name) ? "#fff" : "none"}
+                stroke={favorites.has(selected.name) ? "#fff" : "#d1d5db"}
+              >
+                <path d="M12 20.2c-.34 0-.67-.12-.93-.35-3.02-2.6-4.62-4.13-5.78-5.66C3.9 12.34 3.2 10.66 3.2 8.9 3.2 6.16 5.3 4.1 7.95 4.1c1.62 0 3.12.78 4.05 2.05.93-1.27 2.43-2.05 4.05-2.05 2.65 0 4.75 2.06 4.75 4.8 0 1.76-.7 3.44-2.09 5.29-1.16 1.53-2.76 3.06-5.78 5.66-.26.23-.59.35-.93.35z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Image area — click the backdrop to close */}
+          <div
+            className="flex-1 relative flex items-center justify-center overflow-hidden select-none"
+            onClick={() => setSelectedIndex(null)}
+          >
+            {photos.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); showPrev(); }}
+                aria-label="Previous"
+                className="absolute left-2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+              >
+                <svg width="10" height="16" viewBox="0 0 11 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9.5 1L1.5 9l8 8" />
+                </svg>
+              </button>
+            )}
+            <img
+              src={selected.url}
+              alt={`${TITLES[view]} ${selectedIndex + 1}`}
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-full max-h-full object-contain"
+            />
+            {photos.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); showNext(); }}
+                aria-label="Next"
+                className="absolute right-2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+              >
+                <svg width="10" height="16" viewBox="0 0 11 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1.5 1l8 8-8 8" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function PhotosLibraryIcon({ active }: { active: boolean }) {
-  const fill = active ? "#5ea7ff" : "#9ca3af";
+function SidebarRow({
+  active,
+  onClick,
+  label,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  children: ReactNode;
+}) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="3" y="2" width="11" height="9" rx="1.5" fill={fill} opacity="0.55"/>
-      <rect x="2" y="4" width="11" height="10" rx="1.5" fill={fill}/>
+    <button
+      onClick={onClick}
+      className={`w-full px-2.5 py-[6px] rounded-lg flex items-center gap-2.5 text-left transition-colors ${
+        active ? "bg-[#3a3a3d]" : "hover:bg-white/5"
+      }`}
+    >
+      <span className="w-[18px] flex items-center justify-center flex-shrink-0">{children}</span>
+      <span className={`text-[13px] ${active ? "text-[#0a84ff] font-medium" : "text-[#e8e8ea]"}`}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
+const SIDEBAR_ACTIVE = "#0a84ff";
+const SIDEBAR_INACTIVE = "#d6d6d8";
+
+function PhotosLibraryIcon({ active }: { active: boolean }) {
+  const c = active ? SIDEBAR_ACTIVE : SIDEBAR_INACTIVE;
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 5.5h9a2 2 0 012 2v8" />
+      <rect x="3.5" y="7.5" width="13" height="11" rx="2.5" />
+      <circle cx="7.1" cy="11" r="1.05" />
+      <path d="M4 16.9l2.8-2.4 2 1.7 3-2.6 4.2 3.6" />
     </svg>
   );
 }
 
 function PhotosHeartIcon({ active }: { active: boolean }) {
-  const stroke = active ? "#5ea7ff" : "#d1d5db";
+  const c = active ? SIDEBAR_ACTIVE : SIDEBAR_INACTIVE;
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill={active ? "#5ea7ff" : "none"} stroke={stroke} strokeWidth="1.4">
-      <path d="M8 13.5s-5-3.2-5-7a3 3 0 015-2.2A3 3 0 0113 6.5c0 3.8-5 7-5 7z"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.2c-.34 0-.67-.12-.93-.35-3.02-2.6-4.62-4.13-5.78-5.66C3.9 12.34 3.2 10.66 3.2 8.9 3.2 6.16 5.3 4.1 7.95 4.1c1.62 0 3.12.78 4.05 2.05.93-1.27 2.43-2.05 4.05-2.05 2.65 0 4.75 2.06 4.75 4.8 0 1.76-.7 3.44-2.09 5.29-1.16 1.53-2.76 3.06-5.78 5.66-.26.23-.59.35-.93.35z"/>
     </svg>
   );
 }
 
-/* ==================== Spotify App ==================== */
-type Song = {
-  t: string;
-  a: string;
-  al: string;
-  added: string;
-  d: string;
-  e?: boolean;
-  mv?: boolean;
-  cover: string; // gradient fallback
-  spotify?: string; // for cover-art fetch only
-};
+function PhotosFolderIcon({ active }: { active: boolean }) {
+  const c = active ? SIDEBAR_ACTIVE : SIDEBAR_INACTIVE;
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      {active ? (
+        // open folder when selected
+        <path d="M6 14l1.45-2.9A2 2 0 019.24 10H21a1 1 0 01.95 1.3l-1.9 5.7a2 2 0 01-1.9 1.4H4a2 2 0 01-2-2V5a2 2 0 012-2h3.93a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H18a2 2 0 012 2v2" />
+      ) : (
+        // closed folder
+        <path d="M20 19.5H4a2 2 0 01-2-2V6a2 2 0 012-2h3.93a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H20a2 2 0 012 2v8.5a2 2 0 01-2 2z" />
+      )}
+    </svg>
+  );
+}
 
-function SpotifyApp() {
-  const [covers, setCovers] = useState<Record<string, string>>({});
+/* ==================== Settings ==================== */
+type SettingsSection =
+  | "wifi" | "bluetooth" | "network" | "vpn"
+  | "notifications" | "sound" | "focus" | "screentime"
+  | "general" | "appearance" | "accessibility" | "controlcenter" | "siri" | "privacy"
+  | "desktopdock" | "displays" | "wallpaper" | "screensaver" | "battery";
 
-  const songs: Song[] = [
-    { t: "Over My Dead Body", a: "Drake", al: "Take Care (Deluxe)", added: "3 weeks ago", d: "4:33", e: true, cover: "from-amber-700 to-stone-900" },
-    { t: "i need u", a: "Ken Carson", al: "A Great Chaos", added: "3 weeks ago", d: "2:29", e: true, cover: "from-zinc-700 to-zinc-900" },
-    { t: "What Did I Miss?", a: "Drake", al: "What Did I Miss?", added: "3 weeks ago", d: "3:14", e: true, cover: "from-sky-300 to-blue-500", spotify: "57GsLpRtEtrzcPGPop20rS" },
-    { t: "Myron", a: "Lil Uzi Vert", al: "Eternal Atake (Deluxe) - LUV vs. The W...", added: "3 weeks ago", d: "3:45", e: true, cover: "from-purple-700 to-indigo-900", spotify: "56uXDJRCuoS7abX3SkzHKQ" },
-    { t: "beibs in the trap", a: "Travis Scott", al: "Birds In The Trap Sing McKnight", added: "3 weeks ago", d: "3:34", e: true, mv: true, cover: "from-stone-600 to-stone-900", spotify: "0ESJlaM8CE1jRWaNtwSNj8" },
-    { t: "Rock N Roll", a: "Ken Carson", al: "Project X", added: "3 weeks ago", d: "2:29", e: true, cover: "from-green-600 to-green-900", spotify: "7sdHMJvhKib3ReVPsZFbrf" },
-    { t: "Hours In Silence", a: "Drake, 21 Savage", al: "Her Loss", added: "3 weeks ago", d: "6:39", e: true, cover: "from-amber-200 to-amber-400" },
-    { t: "on one tonight", a: "Gunna", al: "One of Wun", added: "3 weeks ago", d: "1:31", e: true, cover: "from-blue-500 to-indigo-700", spotify: "6EUcP55GlbmsmCzfL2vxtZ" },
-    { t: "Over", a: "Playboi Carti", al: "Whole Lotta Red", added: "3 weeks ago", d: "2:46", e: true, cover: "from-red-700 to-black", spotify: "08dz3ygXyFur6bL7Au8u8J" },
-    { t: "Stereo Love", a: "Edward Maya, Vika Jigulina", al: "Stereo Love", added: "3 weeks ago", d: "3:05", mv: true, cover: "from-rose-400 to-purple-700", spotify: "11Iv8RCFmeImLOpaHYxKb4" },
-    { t: "Back Home", a: "Yeat, Joji", al: "ADL", added: "3 weeks ago", d: "3:14", e: true, cover: "from-stone-400 to-stone-700" },
-    { t: "Liv Likë Dis", a: "Yeat", al: "ADL", added: "1 week ago", d: "2:41", e: true, cover: "from-stone-400 to-stone-700" },
-    { t: "Let King Tonka Talk", a: "Yeat, King Kylie", al: "ADL", added: "1 week ago", d: "3:02", e: true, cover: "from-stone-400 to-stone-700" },
-    { t: "Real Life Shit", a: "Yeat", al: "ADL", added: "1 week ago", d: "3:13", e: true, cover: "from-stone-400 to-stone-700" },
-    { t: "Griddlë", a: "Yeat, Don Toliver", al: "ADL", added: "1 week ago", d: "2:37", e: true, cover: "from-stone-400 to-stone-700" },
-    { t: "Poker Face", a: "Lady Gaga", al: "The Fame", added: "1 week ago", d: "3:57", cover: "from-pink-400 to-pink-700" },
-  ];
+type SidebarItem = { id: SettingsSection; label: string; color: string; glyph: ReactNode };
 
-  const playingIndex = 3; // Myron
-  const playing = songs[playingIndex];
+// Sidebar layout mirrors macOS System Settings. Groups are separated by dividers.
+// `color` accepts a solid hex or a CSS gradient (for the multicolor icons).
+const SETTINGS_GROUPS: SidebarItem[][] = [
+  [
+    { id: "wifi", label: "Wi-Fi", color: "#1e8bff", glyph: <WifiGlyph /> },
+    { id: "bluetooth", label: "Bluetooth", color: "#1e8bff", glyph: <BluetoothGlyph /> },
+    { id: "network", label: "Network", color: "#1e8bff", glyph: <GlobeGlyph /> },
+    { id: "vpn", label: "VPN", color: "#1e8bff", glyph: <GlobeGlyph /> },
+  ],
+  [
+    { id: "notifications", label: "Notifications", color: "#ff3b30", glyph: <BellGlyph /> },
+    { id: "sound", label: "Sound", color: "#ff2d55", glyph: <SoundGlyph /> },
+    { id: "focus", label: "Focus", color: "#6e6ef0", glyph: <FocusGlyph /> },
+    { id: "screentime", label: "Screen Time", color: "#8a5cf6", glyph: <ScreenTimeGlyph /> },
+  ],
+  [
+    { id: "general", label: "General", color: "#8e8e93", glyph: <GearGlyph /> },
+    { id: "appearance", label: "Appearance", color: "#1c1c1e", glyph: <AppearanceGlyph /> },
+    { id: "accessibility", label: "Accessibility", color: "#007aff", glyph: <AccessibilityGlyph /> },
+    { id: "controlcenter", label: "Control Center", color: "#8e8e93", glyph: <ControlCenterGlyph /> },
+    { id: "siri", label: "Siri & Spotlight", color: "conic-gradient(from 210deg,#5ac8fa,#34c759,#ffcc00,#ff3b30,#af52de,#5ac8fa)", glyph: null },
+    { id: "privacy", label: "Privacy & Security", color: "#1e8bff", glyph: <PrivacyGlyph /> },
+  ],
+  [
+    { id: "desktopdock", label: "Desktop & Dock", color: "#1c1c1e", glyph: <DesktopDockGlyph /> },
+    { id: "displays", label: "Displays", color: "#1e8bff", glyph: <DisplaysGlyph /> },
+    { id: "wallpaper", label: "Wallpaper", color: "linear-gradient(135deg,#34d3ff,#6c5ce7,#ff6bcb)", glyph: <WallpaperGlyph /> },
+    { id: "screensaver", label: "Screen Saver", color: "#1e8bff", glyph: <ScreenSaverGlyph /> },
+    { id: "battery", label: "Battery", color: "#34c759", glyph: <BatteryGlyph /> },
+  ],
+];
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const next: Record<string, string> = {};
-      await Promise.all(
-        songs.map(async (s) => {
-          // Use spotify ID if present (key by ID); else use "title|artist" key
-          const key = s.spotify ?? `${s.t}|${s.a}`;
-          try {
-            if (s.spotify) {
-              const res = await fetch(`https://open.spotify.com/oembed?url=https://open.spotify.com/track/${s.spotify}`);
-              if (res.ok) {
-                const data = await res.json();
-                if (data.thumbnail_url) {
-                  next[key] = data.thumbnail_url;
-                  return;
-                }
-              }
-            }
-            // Fallback: iTunes Search API (no auth, returns artwork URLs)
-            const term = encodeURIComponent(`${s.t} ${s.a}`);
-            const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
-            if (!res.ok) return;
-            const data = await res.json();
-            const artwork = data?.results?.[0]?.artworkUrl100 as string | undefined;
-            if (artwork) {
-              // bump resolution: 100x100 → 300x300
-              next[key] = artwork.replace("100x100bb", "300x300bb");
-            }
-          } catch {
-            // network/CORS — gradient fallback
-          }
-        })
-      );
-      if (!cancelled) setCovers((prev) => ({ ...prev, ...next }));
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+const SETTINGS_TITLES: Record<SettingsSection, string> = Object.fromEntries(
+  SETTINGS_GROUPS.flat().map((i) => [i.id, i.label])
+) as Record<SettingsSection, string>;
 
-  // Decorative library thumbnails — visual only, not a real list
-  const libraryThumbs = [
-    { kind: "liked", c: "from-indigo-400 via-purple-500 to-blue-600" },
-    { kind: "bookmark", c: "from-emerald-700 to-emerald-900" },
-    { kind: "april", c: "from-amber-700 to-orange-900" },
-    { kind: "note", c: "from-zinc-700 to-zinc-900" },
-    { kind: "dj", c: "from-teal-400 to-cyan-700" },
-    { kind: "photo", c: "from-rose-300 to-pink-500" },
-    { kind: "date", c: "from-zinc-200 to-zinc-400" },
-    { kind: "album", c: "from-red-800 to-stone-900" },
-  ] as const;
+const IMPLEMENTED: SettingsSection[] = ["wifi", "bluetooth", "general", "wallpaper", "appearance"];
+
+function SettingsApp({
+  theme,
+  onToggleTheme,
+  wallpaper,
+  onChangeWallpaper,
+}: {
+  theme: Theme;
+  onToggleTheme: () => void;
+  wallpaper: string;
+  onChangeWallpaper: (value: string) => void;
+}) {
+  const [section, setSection] = useState<SettingsSection>("wifi");
 
   return (
-    <div className="flex flex-col h-full bg-black text-gray-100 text-[13px]">
-      {/* Top toolbar */}
-      <div className="h-14 bg-black flex items-center px-3 gap-3 flex-shrink-0">
-        <div className="flex items-center gap-1 ml-2">
-          <button className="w-8 h-8 rounded-full bg-black/40 hover:bg-white/10 text-gray-300 flex items-center justify-center">‹</button>
-          <button className="w-8 h-8 rounded-full bg-black/40 hover:bg-white/10 text-gray-500 flex items-center justify-center">›</button>
+    <div className="flex h-full bg-[#ececec] dark:bg-[#1e1e1e] text-gray-900 dark:text-gray-100 font-sans" style={{ fontSize: 13 }}>
+      <aside className="w-[230px] bg-[#e3e3e6]/80 dark:bg-[#262629]/85 backdrop-blur-xl border-r border-black/10 dark:border-white/10 flex flex-col flex-shrink-0">
+        {/* Search */}
+        <div className="px-3 pt-3 pb-2">
+          <div className="flex items-center gap-2 px-2.5 py-[6px] rounded-[8px] bg-white/70 dark:bg-white/10 border border-black/10 dark:border-white/10 shadow-sm">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" className="text-gray-400 dark:text-gray-500">
+              <circle cx="7" cy="7" r="5" />
+              <path d="M11 11l3.5 3.5" strokeLinecap="round" />
+            </svg>
+            <span className="text-[13px] text-gray-400 dark:text-gray-500">Search</span>
+          </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex items-center gap-2 max-w-2xl w-full">
-            <button className="w-12 h-12 rounded-full bg-[#1f1f1f] hover:bg-[#2a2a2a] flex items-center justify-center text-gray-200">
-              <HomeSvg/>
-            </button>
-            <div className="flex-1 h-12 bg-[#1f1f1f] hover:bg-[#2a2a2a] rounded-full flex items-center px-4 gap-3">
-              <SearchSvg/>
-              <span className="text-gray-400 text-sm">What do you want to play?</span>
-              <div className="ml-auto flex items-center gap-3 text-gray-400">
-                <div className="w-px h-6 bg-white/15"/>
-                <BrowseSvg/>
+
+        <div className="flex-1 overflow-y-auto px-2.5 pb-3">
+          {/* Profile */}
+          <button className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-left">
+            <div className="w-[40px] h-[40px] rounded-full bg-gradient-to-br from-[#d9b8a0] to-[#b88a6a] flex items-center justify-center text-[20px] flex-shrink-0">
+              🤙
+            </div>
+            <div className="leading-tight min-w-0">
+              <div className="font-semibold text-[14px] truncate">Fatimah Hussain</div>
+              <div className="text-[12px] text-gray-500 dark:text-gray-400">Apple ID</div>
+            </div>
+          </button>
+
+          {/* Family */}
+          <button className="w-full flex items-center gap-2.5 px-2 py-1.5 mb-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-left">
+            <div className="flex items-center -space-x-1.5 w-[40px] justify-center flex-shrink-0">
+              {["MI", "GI", "KH"].map((m) => (
+                <span key={m} className="w-[18px] h-[18px] rounded-full bg-gradient-to-br from-[#9a9aa2] to-[#6e6e78] ring-[1.5px] ring-[#e3e3e6] dark:ring-[#262629] text-white text-[7px] font-semibold flex items-center justify-center">{m}</span>
+              ))}
+            </div>
+            <span className="text-[13px]">Family</span>
+          </button>
+
+          {/* Grouped rows */}
+          {SETTINGS_GROUPS.map((group, gi) => (
+            <div key={gi}>
+              <div className="flex flex-col gap-[2px]">
+                {group.map((item) => (
+                  <SettingsRow
+                    key={item.id}
+                    active={section === item.id}
+                    onClick={() => setSection(item.id)}
+                    label={item.label}
+                    color={item.color}
+                  >
+                    {item.glyph}
+                  </SettingsRow>
+                ))}
               </div>
+              {gi < SETTINGS_GROUPS.length - 1 && <div className="h-px bg-black/[0.08] dark:bg-white/[0.08] mx-2 my-2.5" />}
             </div>
-          </div>
+          ))}
         </div>
-        <div className="flex items-center gap-4 mr-2">
-          <button className="text-gray-400 hover:text-white"><BellSvg/></button>
-          <button className="text-gray-400 hover:text-white"><FriendsSvg/></button>
-          <div className="relative">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-stone-700 to-stone-900 ring-[3px] ring-black overflow-hidden">
-              <img src="/icons/profile.png" alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}/>
-            </div>
-            <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-black"/>
-          </div>
+      </aside>
+
+      <div className="flex-1 overflow-y-auto bg-[#ececec] dark:bg-[#1e1e1e]">
+        <div className="sticky top-0 z-10 bg-[#ececec]/80 dark:bg-[#1e1e1e]/80 backdrop-blur-xl px-7 pt-4 pb-3 border-b border-black/5 dark:border-white/5">
+          <h1 className="text-[15px] font-bold">{SETTINGS_TITLES[section]}</h1>
         </div>
-      </div>
-
-      <div className="flex flex-1 overflow-hidden gap-2 px-2 pb-2">
-        {/* Thin sidebar */}
-        <aside className="w-[72px] bg-[#121212] rounded-lg flex flex-col items-center py-3 gap-3 flex-shrink-0">
-          <button className="text-gray-300 hover:text-white"><SidebarSvg/></button>
-          <button className="w-9 h-9 rounded-full bg-[#1f1f1f] hover:bg-[#2a2a2a] text-gray-300 flex items-center justify-center text-xl">+</button>
-          <div className="flex-1 overflow-y-auto flex flex-col items-center gap-3 mt-1">
-            {libraryThumbs.map((t, i) => (
-              <div key={i} className={`w-12 h-12 rounded-md bg-gradient-to-br ${t.c} flex items-center justify-center text-white shadow flex-shrink-0`}>
-                {t.kind === "liked" && <span>♥</span>}
-                {t.kind === "bookmark" && <span>🔖</span>}
-                {t.kind === "note" && <span>♪</span>}
-                {t.kind === "dj" && <span className="text-[9px] font-bold">DJ</span>}
-                {t.kind === "date" && <div className="text-center"><div className="text-[8px] font-semibold text-gray-700 leading-none">Aug</div><div className="text-sm font-bold text-gray-800 leading-none">13</div></div>}
-              </div>
-            ))}
-          </div>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-stone-600 to-stone-800 ring-2 ring-[#121212]"/>
-        </aside>
-
-        {/* Main scroll area */}
-        <div className="flex-1 bg-gradient-to-b from-[#7a4524] via-[#3a2418] to-[#121212] overflow-y-auto rounded-lg">
-          {/* Header */}
-          <div className="flex items-end gap-5 p-6 pb-5">
-            <div className="w-52 h-52 bg-gradient-to-br from-amber-600 via-orange-700 to-stone-800 shadow-2xl flex items-center justify-center text-7xl rounded-sm flex-shrink-0">
-              🥤
-            </div>
-            <div className="pb-2">
-              <div className="text-xs font-semibold">Public Playlist</div>
-              <div className="text-[6.5rem] font-black leading-[0.95] mt-2 mb-5 tracking-tight">April 🥹</div>
-              <div className="text-xs text-gray-200 flex items-center gap-2">
-                <button className="w-5 h-5 rounded-full border border-gray-300 text-gray-300 flex items-center justify-center text-[11px]">+</button>
-                <span className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-700 to-stone-800 inline-block"/>
-                <span className="font-bold text-white">fatimah</span>
-                <span className="font-bold">·</span>
-                <span>36 songs, 2 hr 7 min</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Action bar */}
-          <div className="px-6 py-3 flex items-center gap-5">
-            <button className="w-14 h-14 rounded-full bg-[#1ed760] hover:bg-[#1fdf64] hover:scale-105 transition flex items-center justify-center text-black shadow-lg">
-              <span className="text-xl ml-0.5">▶</span>
-            </button>
-            <div className="w-12 h-12 rounded bg-gradient-to-br from-amber-700 to-stone-900 border border-white/20"/>
-            <button className="text-3xl text-[#1ed760] hover:scale-110 transition">⇄</button>
-            <button className="text-2xl text-gray-300 hover:text-white">
-              <DownloadSvg/>
-            </button>
-            <button className="text-2xl text-gray-300 hover:text-white"><AddUserSvg/></button>
-            <button className="px-4 py-1.5 rounded-full border border-gray-500 text-gray-200 text-sm flex items-center gap-1.5 hover:border-white">
-              <span className="text-xs">⇅</span> Mix
-            </button>
-            <button className="text-2xl text-gray-300 hover:text-white">⋯</button>
-            <div className="ml-auto flex items-center gap-3 text-gray-300">
-              <button className="hover:text-white"><SearchSvg/></button>
-              <span className="text-sm">Custom order</span>
-              <span>≡</span>
-            </div>
-          </div>
-
-          {/* Track table */}
-          <div className="px-6">
-            <div className="grid grid-cols-[2.5rem_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1.4fr)_4rem] gap-3 px-3 py-2 text-[12px] text-gray-400 border-b border-white/10">
-              <div className="text-right pr-2">#</div>
-              <div>Title</div>
-              <div>Album</div>
-              <div>Date added</div>
-              <div className="text-right">⏱</div>
-            </div>
-            {songs.map((s, i) => {
-              const isPlaying = i === playingIndex;
-              return (
-                <div
-                  key={i}
-                  className="grid grid-cols-[2.5rem_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1.4fr)_4rem] gap-3 px-3 py-2 rounded group hover:bg-white/10"
-                >
-                  <div className={`self-center text-right pr-2 ${isPlaying ? "text-[#1ed760]" : "text-gray-400"}`}>{i + 1}</div>
-                  <div className="flex items-center gap-3 min-w-0">
-                    {(() => {
-                      const key = s.spotify ?? `${s.t}|${s.a}`;
-                      return covers[key] ? (
-                        <img src={covers[key]} alt="" className="w-10 h-10 rounded flex-shrink-0 object-cover"/>
-                      ) : (
-                        <div className={`w-10 h-10 rounded bg-gradient-to-br ${s.cover} flex-shrink-0`}/>
-                      );
-                    })()}
-                    <div className="min-w-0">
-                      <div className={`font-medium truncate ${isPlaying ? "text-[#1ed760]" : "text-white"}`}>{s.t}</div>
-                      <div className="text-xs text-gray-400 flex items-center gap-1.5 truncate">
-                        {s.e && <span className="text-[9px] font-bold bg-white/15 text-gray-300 rounded px-1 py-0.5 leading-none">E</span>}
-                        {s.mv && <span className="text-[10px] text-gray-300 flex items-center gap-0.5"><span className="border border-gray-400 rounded text-[8px] px-0.5 leading-none">▶</span> Music video</span>}
-                        {s.mv ? <span>· {s.a}</span> : <span>{s.a}</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-gray-400 self-center truncate">{s.al}</div>
-                  <div className="text-gray-400 self-center">{s.added}</div>
-                  <div className="self-center text-right text-gray-400">{s.d}</div>
-                </div>
-              );
-            })}
-            <div className="h-6"/>
-          </div>
-        </div>
-      </div>
-
-      {/* Now-playing bar */}
-      <div className="h-[72px] bg-black flex items-center px-3 gap-3 flex-shrink-0">
-        <div className="flex items-center gap-3 w-1/4 min-w-0">
-          {(() => {
-            const key = playing.spotify ?? `${playing.t}|${playing.a}`;
-            return covers[key] ? (
-              <img src={covers[key]} alt="" className="w-14 h-14 rounded flex-shrink-0 object-cover"/>
-            ) : (
-              <div className={`w-14 h-14 rounded bg-gradient-to-br ${playing.cover} flex-shrink-0`}/>
-            );
-          })()}
-          <div className="min-w-0">
-            <div className="font-medium text-white text-[14px] truncate">{playing.t}</div>
-            <div className="text-[12px] text-gray-400 truncate">{playing.a}</div>
-          </div>
-          <span className="w-5 h-5 rounded-full bg-[#1ed760] text-black text-xs flex items-center justify-center flex-shrink-0">✓</span>
-        </div>
-        <div className="flex-1 flex flex-col items-center gap-1.5">
-          <div className="flex items-center gap-5 text-gray-300">
-            <span className="text-[#1ed760]">⇄</span>
-            <span className="text-xl">⏮</span>
-            <button className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center text-sm">▶</button>
-            <span className="text-xl">⏭</span>
-            <span>⟲</span>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-gray-400 w-full max-w-2xl">
-            <span>0:01</span>
-            <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white" style={{ width: "0.4%" }}/>
-            </div>
-            <span>3:44</span>
-          </div>
-        </div>
-        <div className="w-1/4 flex items-center justify-end gap-3 text-gray-400">
-          <span>📝</span>
-          <span>≡</span>
-          <span>📱</span>
-          <span>🔊</span>
-          <div className="w-20 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div className="h-full bg-white w-3/4"/>
-          </div>
-          <span className="ml-2">⛶</span>
-          <span>⛶</span>
+        <div className="px-7 py-5 max-w-[640px]">
+          {section === "wifi" && <WifiPanel />}
+          {section === "bluetooth" && <BluetoothPanel />}
+          {section === "general" && <GeneralPanel />}
+          {section === "wallpaper" && <WallpaperPanel wallpaper={wallpaper} onChange={onChangeWallpaper} />}
+          {section === "appearance" && <AppearancePanel theme={theme} onToggleTheme={onToggleTheme} />}
+          {!IMPLEMENTED.includes(section) && <PlaceholderPanel name={SETTINGS_TITLES[section]} />}
         </div>
       </div>
     </div>
   );
 }
 
-/* Inline SVGs for Spotify toolbar */
-function HomeSvg() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-2v9h-5v-6h-4v6H5v-9H3z"/></svg>);
+function PlaceholderPanel({ name }: { name: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-20 text-gray-500 dark:text-gray-400">
+      <div className="w-12 h-12 rounded-[12px] bg-black/[0.06] dark:bg-white/10 flex items-center justify-center mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" />
+        </svg>
+      </div>
+      <p className="text-[14px] font-medium text-gray-700 dark:text-gray-300">{name}</p>
+      <p className="text-[12px] mt-1 max-w-xs">This section isn’t part of the demo yet — Wi-Fi, Bluetooth, General, Wallpaper, and Appearance are interactive.</p>
+    </div>
+  );
 }
-function SearchSvg() {
-  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>);
+
+function SettingsRow({
+  label,
+  color,
+  active,
+  onClick,
+  children,
+}: {
+  label: string;
+  color: string;
+  active?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-2.5 px-2 py-[5px] rounded-[7px] text-left transition-colors ${
+        active ? "bg-[#0a82ff] text-white" : "hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
+      }`}
+    >
+      <span
+        className="w-[22px] h-[22px] rounded-[6px] flex items-center justify-center text-white flex-shrink-0 shadow-sm"
+        style={{ background: color }}
+      >
+        {children}
+      </span>
+      <span className={`text-[13px] ${active ? "font-medium" : ""}`}>{label}</span>
+    </button>
+  );
 }
-function BrowseSvg() {
-  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>);
+
+/* ---- macOS settings card primitives ---- */
+function SettingsCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="bg-white dark:bg-[#2c2c2e] rounded-[10px] border border-black/[0.07] dark:border-white/[0.07] shadow-sm overflow-hidden">
+      {children}
+    </div>
+  );
 }
-function BellSvg() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9a6 6 0 1112 0c0 4.5 1.5 5.5 2 6H4c.5-.5 2-1.5 2-6z"/><path d="M10 19.5a2 2 0 004 0"/></svg>);
+
+function Toggle({ on, onClick }: { on: boolean; onClick?: () => void }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      onClick={onClick}
+      className={`relative w-[38px] h-[23px] rounded-full transition-colors flex-shrink-0 ${on ? "bg-[#34c759]" : "bg-black/15 dark:bg-white/20"}`}
+    >
+      <span className={`absolute top-[2px] left-[2px] w-[19px] h-[19px] rounded-full bg-white shadow transition-transform ${on ? "translate-x-[15px]" : ""}`} />
+    </button>
+  );
 }
-function FriendsSvg() {
-  return (<svg width="24" height="22" viewBox="0 0 26 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="13" cy="6.5" r="3.2"/><circle cx="6" cy="8" r="2.4"/><circle cx="20" cy="8" r="2.4"/><path d="M7 19.5c0-3 2.7-5.2 6-5.2s6 2.2 6 5.2"/><path d="M2 18.5c0-2.4 1.5-4 4-4"/><path d="M24 18.5c0-2.4-1.5-4-4-4"/></svg>);
+
+function Chevron() {
+  return (
+    <svg width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-gray-500">
+      <path d="M1 1l5 5-5 5" />
+    </svg>
+  );
 }
-function SidebarSvg() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="3" height="16"/><rect x="11" y="4" width="3" height="16"/><rect x="18" y="4" width="3" height="16"/></svg>);
+
+function GroupLabel({ children }: { children: ReactNode }) {
+  return <div className="text-[12px] text-gray-500 dark:text-gray-400 font-medium px-1 mb-1.5 mt-5 first:mt-0">{children}</div>;
 }
-function DownloadSvg() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 7v8m-3-3l3 3 3-3"/></svg>);
+
+/* ---- Wi-Fi panel ---- */
+function WifiPanel() {
+  const [on, setOn] = useState(true);
+  const others = [
+    { name: "Berkeley-IoT", secure: true, bars: 3 },
+    { name: "eduroam", secure: true, bars: 2 },
+    { name: "CalVisitor", secure: false, bars: 2 },
+    { name: "xfinitywifi", secure: false, bars: 1 },
+  ];
+  return (
+    <>
+      <SettingsCard>
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <div className="flex items-center gap-3">
+            <span className="w-7 h-7 rounded-[7px] bg-[#3478f6] flex items-center justify-center text-white"><WifiGlyph big /></span>
+            <span className="text-[13px]">Wi-Fi</span>
+          </div>
+          <Toggle on={on} onClick={() => setOn(!on)} />
+        </div>
+      </SettingsCard>
+
+      {on && (
+        <>
+          <GroupLabel>Known Network</GroupLabel>
+          <SettingsCard>
+            <div className="flex items-center gap-3 px-4 py-2.5">
+              <span className="w-6 h-6 rounded-[6px] bg-[#3478f6] flex items-center justify-center text-white"><WifiGlyph /></span>
+              <div className="flex-1">
+                <div className="text-[13px] font-medium">Fatimah's Network</div>
+                <div className="text-[11px] text-gray-500 dark:text-gray-400">Connected</div>
+              </div>
+              <CheckIcon />
+              <LockIcon />
+              <WifiBars bars={3} />
+              <InfoButton />
+            </div>
+          </SettingsCard>
+
+          <GroupLabel>Other Networks</GroupLabel>
+          <SettingsCard>
+            <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+              {others.map((n) => (
+                <div key={n.name} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className="text-[13px] flex-1">{n.name}</span>
+                  {n.secure && <LockIcon />}
+                  <WifiBars bars={n.bars} />
+                </div>
+              ))}
+            </div>
+          </SettingsCard>
+
+          <SettingsCard>
+            <div className="flex items-center justify-between px-4 py-2.5 mt-4">
+              <span className="text-[13px]">Ask to join networks</span>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 flex items-center gap-1">Notify <Chevron /></span>
+            </div>
+          </SettingsCard>
+        </>
+      )}
+    </>
+  );
 }
-function AddUserSvg() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="9" r="3.5"/><path d="M4 19c0-3 3-5 7-5s7 2 7 5v1H4v-1z"/><path d="M19 5v6m-3-3h6" stroke="currentColor" strokeWidth="2" fill="none"/></svg>);
+
+/* ---- Bluetooth panel ---- */
+function BluetoothPanel() {
+  const [on, setOn] = useState(true);
+  const mine = [
+    { name: "Fatimah's AirPods Pro", status: "Connected", icon: "airpods" as const },
+  ];
+  return (
+    <>
+      <SettingsCard>
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <div className="flex items-center gap-3">
+            <span className="w-7 h-7 rounded-[7px] bg-[#3478f6] flex items-center justify-center text-white"><BluetoothGlyph big /></span>
+            <span className="text-[13px]">Bluetooth</span>
+          </div>
+          <Toggle on={on} onClick={() => setOn(!on)} />
+        </div>
+        {on && (
+          <div className="px-4 py-2.5 border-t border-black/[0.06] dark:border-white/[0.06] text-[12px] text-gray-500 dark:text-gray-400">
+            This Mac is discoverable as “Fatimah's MacBook Pro” while Bluetooth Settings is open.
+          </div>
+        )}
+      </SettingsCard>
+
+      {on && (
+        <>
+          <GroupLabel>My Devices</GroupLabel>
+          <SettingsCard>
+            <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+              {mine.map((d) => (
+                <div key={d.name} className="flex items-center gap-3 px-4 py-2.5">
+                  <DeviceIcon kind={d.icon} />
+                  <span className="text-[13px] flex-1">{d.name}</span>
+                  <span className={`text-[12px] ${d.status === "Connected" ? "text-gray-500 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}`}>{d.status}</span>
+                  <InfoButton />
+                </div>
+              ))}
+            </div>
+          </SettingsCard>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ---- General panel ---- */
+function GeneralPanel() {
+  const rows: { label: string; color: string; glyph: ReactNode }[] = [
+    { label: "About", color: "#8e8e93", glyph: <InfoGlyph /> },
+    { label: "Software Update", color: "#34c759", glyph: <UpdateGlyph /> },
+    { label: "Storage", color: "#34c759", glyph: <StorageGlyph /> },
+    { label: "AirDrop & Handoff", color: "#3478f6", glyph: <AirdropGlyph /> },
+    { label: "Login Items & Extensions", color: "#8e8e93", glyph: <GearGlyph /> },
+    { label: "Language & Region", color: "#3478f6", glyph: <GlobeGlyph /> },
+    { label: "Date & Time", color: "#ff453a", glyph: <ClockGlyph /> },
+    { label: "Sharing", color: "#3478f6", glyph: <ShareGlyph /> },
+    { label: "Time Machine", color: "#34c759", glyph: <ClockGlyph /> },
+    { label: "Transfer or Reset", color: "#8e8e93", glyph: <ResetGlyph /> },
+  ];
+  return (
+    <SettingsCard>
+      <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+        {rows.map((r) => (
+          <button key={r.label} className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
+            <span className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center text-white flex-shrink-0" style={{ backgroundColor: r.color }}>
+              {r.glyph}
+            </span>
+            <span className="text-[13px] flex-1">{r.label}</span>
+            <Chevron />
+          </button>
+        ))}
+      </div>
+    </SettingsCard>
+  );
+}
+
+/* ---- Wallpaper panel ---- */
+function WallpaperPanel({ wallpaper, onChange }: { wallpaper: string; onChange: (value: string) => void }) {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [screenSaver, setScreenSaver] = useState(true);
+  const [allSpaces, setAllSpaces] = useState(true);
+
+  const current = WALLPAPERS.find((w) => w.value === wallpaper);
+  const currentName = current?.name ?? "Custom Photo";
+
+  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    onChange(`url("${url}")`);
+    e.target.value = "";
+  };
+
+  return (
+    <>
+      {/* Selected wallpaper + options */}
+      <div className="flex gap-4">
+        <div
+          className="w-[210px] h-[128px] rounded-[8px] bg-cover bg-center ring-1 ring-black/15 dark:ring-white/15 shadow-md flex-shrink-0"
+          style={{ backgroundImage: wallpaper, backgroundColor: "#3a6ea5" }}
+        />
+        <div className="flex-1 flex flex-col gap-3">
+          <SettingsCard>
+            <div className="px-4 py-3 text-[13px] font-medium">{currentName}</div>
+          </SettingsCard>
+          <SettingsCard>
+            <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className="text-[13px]">Show as screen saver</span>
+                <Toggle on={screenSaver} onClick={() => setScreenSaver(!screenSaver)} />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className="text-[13px]">Show on all Spaces</span>
+                <Toggle on={allSpaces} onClick={() => setAllSpaces(!allSpaces)} />
+              </div>
+            </div>
+          </SettingsCard>
+        </div>
+      </div>
+
+      {/* Add buttons */}
+      <div className="flex justify-end gap-2.5 mt-4">
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickFile} />
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="px-3.5 py-[5px] rounded-[7px] bg-white dark:bg-[#3a3a3c] border border-black/10 dark:border-white/10 shadow-sm text-[13px] flex items-center gap-1.5 hover:bg-black/[0.03] dark:hover:bg-white/[0.06]"
+        >
+          Add Photo <Chevron />
+        </button>
+        <button className="px-3.5 py-[5px] rounded-[7px] bg-white dark:bg-[#3a3a3c] border border-black/10 dark:border-white/10 shadow-sm text-[13px] flex items-center gap-1.5 hover:bg-black/[0.03] dark:hover:bg-white/[0.06]">
+          Add Folder or Album <Chevron />
+        </button>
+      </div>
+
+      <div className="h-px bg-black/10 dark:bg-white/10 my-5" />
+
+      {/* Presets */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[15px] font-bold">Dynamic Wallpapers</h2>
+        <span className="text-[12px] text-[#0a82ff]">Show All ({WALLPAPERS.length})</span>
+      </div>
+      <div className="grid grid-cols-4 gap-x-4 gap-y-3">
+        {WALLPAPERS.map((w) => {
+          const selected = w.value === wallpaper;
+          return (
+            <button key={w.id} onClick={() => onChange(w.value)} className="flex flex-col items-center gap-1.5 group">
+              <div
+                className={`w-full aspect-[16/10] rounded-[7px] bg-cover bg-center shadow-sm ${
+                  selected ? "ring-2 ring-[#0a82ff] ring-offset-2 ring-offset-[#ececec] dark:ring-offset-[#1e1e1e]" : "ring-1 ring-black/10 dark:ring-white/10 group-hover:ring-black/25 dark:group-hover:ring-white/25"
+                }`}
+                style={{ backgroundImage: w.value, backgroundColor: "#3a6ea5" }}
+              />
+              <span className={`text-[11px] ${selected ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-600 dark:text-gray-400"}`}>{w.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+/* ---- Appearance panel ---- */
+function AppearancePanel({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
+  const isDark = theme === "dark";
+  const modes: { id: "light" | "dark"; label: string }[] = [
+    { id: "light", label: "Light" },
+    { id: "dark", label: "Dark" },
+  ];
+  const accents = [
+    { name: "Multicolor", color: "linear-gradient(135deg,#ff5f57,#ffbd2e,#28c840,#0a82ff,#af52de)" },
+    { name: "Blue", color: "#0a82ff" },
+    { name: "Purple", color: "#af52de" },
+    { name: "Pink", color: "#ff2d55" },
+    { name: "Red", color: "#ff3b30" },
+    { name: "Orange", color: "#ff9500" },
+    { name: "Yellow", color: "#ffcc00" },
+    { name: "Green", color: "#34c759" },
+    { name: "Graphite", color: "#8e8e93" },
+  ];
+  const [accent, setAccent] = useState(1);
+
+  return (
+    <>
+      <SettingsCard>
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-medium">Appearance</span>
+            <div className="flex gap-4">
+              {modes.map((m) => {
+                const selected = m.id === (isDark ? "dark" : "light");
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => { if (m.id !== (isDark ? "dark" : "light")) onToggleTheme(); }}
+                    className="flex flex-col items-center gap-1.5"
+                  >
+                    <AppearanceThumb mode={m.id} selected={selected} />
+                    <span className={`text-[11px] ${selected ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-500 dark:text-gray-400"}`}>{m.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </SettingsCard>
+
+      <div className="mt-4">
+        <SettingsCard>
+          <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-[13px]">Accent color</span>
+              <div className="flex items-center gap-2">
+                {accents.map((a, i) => (
+                  <button
+                    key={a.name}
+                    aria-label={a.name}
+                    onClick={() => setAccent(i)}
+                    className={`w-[18px] h-[18px] rounded-full border ${accent === i ? "ring-2 ring-offset-1 ring-[#0a82ff] dark:ring-offset-[#2c2c2e] border-transparent" : "border-black/10 dark:border-white/15"}`}
+                    style={{ background: a.color }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-[13px]">Highlight color</span>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 flex items-center gap-1">Accent Color <Chevron /></span>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-[13px]">Sidebar icon size</span>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 flex items-center gap-1">Medium <Chevron /></span>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <div className="text-[13px]">Allow wallpaper tinting in windows</div>
+              </div>
+              <Toggle on={true} />
+            </div>
+          </div>
+        </SettingsCard>
+      </div>
+
+      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-2.5 px-1">
+        Dark mode changes the appearance of the entire desktop. This setting is synced with the menu bar toggle.
+      </p>
+    </>
+  );
+}
+
+function AppearanceThumb({ mode, selected }: { mode: "light" | "dark"; selected: boolean }) {
+  const light = mode === "light";
+  return (
+    <div
+      className={`w-[64px] h-[42px] rounded-[6px] overflow-hidden ${selected ? "ring-2 ring-[#0a82ff] ring-offset-2 ring-offset-white dark:ring-offset-[#2c2c2e]" : "ring-1 ring-black/10 dark:ring-white/15"}`}
+      style={{ background: light ? "#dfe7f2" : "#2a2c33" }}
+    >
+      <div className="h-1.5 w-full flex items-center px-1 gap-[2px]" style={{ background: light ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.12)" }}>
+        <span className="w-[3px] h-[3px] rounded-full bg-[#ff5f57]" />
+        <span className="w-[3px] h-[3px] rounded-full bg-[#ffbd2e]" />
+        <span className="w-[3px] h-[3px] rounded-full bg-[#28c840]" />
+      </div>
+      <div className="p-1.5">
+        <div className="rounded-[3px] h-full p-1 flex flex-col gap-1" style={{ background: light ? "#fff" : "#1c1d22" }}>
+          <div className="h-1 w-9 rounded-full" style={{ background: light ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.2)" }} />
+          <div className="h-1 w-7 rounded-full" style={{ background: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.13)" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---- shared small icons ---- */
+function CheckIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#0a82ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 8.5l3.5 3.5 6.5-8" />
+    </svg>
+  );
+}
+function LockIcon() {
+  return (
+    <svg width="11" height="13" viewBox="0 0 14 16" fill="currentColor" className="text-gray-500 dark:text-gray-400">
+      <path d="M4 7V5a3 3 0 016 0v2h.5A1.5 1.5 0 0112 8.5v5A1.5 1.5 0 0110.5 15h-7A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm1.4 0h3.2V5a1.6 1.6 0 00-3.2 0v2z" />
+    </svg>
+  );
+}
+function WifiBars({ bars }: { bars: number }) {
+  return (
+    <svg width="17" height="13" viewBox="0 0 18 14" fill="none" className="text-gray-700 dark:text-gray-300">
+      <path d="M9 12.5l1.8-2.3a3 3 0 00-3.6 0L9 12.5z" fill="currentColor" opacity={bars >= 1 ? 1 : 0.25} />
+      <path d="M9 8.2c1.4 0 2.7.5 3.7 1.4l1.3-1.5A7.6 7.6 0 009 6a7.6 7.6 0 00-5 2.1l1.3 1.5A5.5 5.5 0 019 8.2z" fill="currentColor" opacity={bars >= 2 ? 1 : 0.25} />
+      <path d="M9 3.9c2.5 0 4.8 1 6.5 2.6L16.8 5A11.4 11.4 0 009 1.7 11.4 11.4 0 001.2 5l1.3 1.5A9.3 9.3 0 019 3.9z" fill="currentColor" opacity={bars >= 3 ? 1 : 0.25} />
+    </svg>
+  );
+}
+function InfoButton() {
+  return (
+    <button className="text-[#0a82ff] flex-shrink-0" aria-label="Info">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+        <circle cx="8" cy="8" r="6.5" />
+        <path d="M8 7.2v3.5M8 5.1v.1" strokeLinecap="round" strokeWidth="1.6" />
+      </svg>
+    </button>
+  );
+}
+function DeviceIcon({ kind }: { kind: "airpods" | "keyboard" | "mouse" }) {
+  const glyph =
+    kind === "airpods" ? (
+      <path d="M6 3c-1.4 0-2.5 1.4-2.5 3.5S4.6 10 6 10s2.5-1.4 2.5-3.5S7.4 3 6 3zm-.3 7v3M10 3c1.4 0 2.5 1.4 2.5 3.5S11.4 10 10 10s-2.5-1.4-2.5-3.5S8.6 3 10 3zm.3 7v3" />
+    ) : kind === "keyboard" ? (
+      <path d="M2 4.5h12v7H2zM4 7h.01M6.5 7h.01M9 7h.01M11.5 7h.01M4.5 9.5h7" />
+    ) : (
+      <path d="M8 2.5a3.5 3.5 0 00-3.5 3.5v4A3.5 3.5 0 0011.5 10V6A3.5 3.5 0 008 2.5zM8 4v3" />
+    );
+  return (
+    <span className="w-[26px] h-[26px] rounded-[7px] bg-[#5e5ce6] flex items-center justify-center text-white flex-shrink-0">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+        {glyph}
+      </svg>
+    </span>
+  );
+}
+
+/* ---- sidebar / row glyphs (white strokes on colored boxes) ---- */
+function WifiGlyph({ big }: { big?: boolean }) {
+  const s = big ? 16 : 13;
+  return (
+    <svg width={s} height={s} viewBox="0 0 18 14" fill="currentColor">
+      <path d="M9 12.5l1.8-2.3a3 3 0 00-3.6 0L9 12.5z" />
+      <path d="M9 8.2c1.4 0 2.7.5 3.7 1.4l1.3-1.5A7.6 7.6 0 009 6a7.6 7.6 0 00-5 2.1l1.3 1.5A5.5 5.5 0 019 8.2z" />
+      <path d="M9 3.9c2.5 0 4.8 1 6.5 2.6L16.8 5A11.4 11.4 0 009 1.7 11.4 11.4 0 001.2 5l1.3 1.5A9.3 9.3 0 019 3.9z" />
+    </svg>
+  );
+}
+function BluetoothGlyph({ big }: { big?: boolean }) {
+  const s = big ? 16 : 12;
+  return (
+    <svg width={s} height={s} viewBox="0 0 12 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 5l8 8-4 3.5V1.5l4 3.5-8 8" />
+    </svg>
+  );
+}
+function GearGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 5.2A2.8 2.8 0 108 10.8 2.8 2.8 0 008 5.2zm0 1.6a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
+      <path d="M7 1h2l.3 1.6a5.6 5.6 0 011.3.55l1.4-.85 1.4 1.4-.85 1.4c.24.4.43.84.55 1.3L15 6.7v2l-1.6.3c-.12.46-.31.9-.55 1.3l.85 1.4-1.4 1.4-1.4-.85c-.4.24-.84.43-1.3.55L9 14.3H7l-.3-1.6a5.6 5.6 0 01-1.3-.55l-1.4.85-1.4-1.4.85-1.4a5.6 5.6 0 01-.55-1.3L1 8.7v-2l1.6-.3c.12-.46.31-.9.55-1.3l-.85-1.4 1.4-1.4 1.4.85c.4-.24.84-.43 1.3-.55L7 1z" fillOpacity="0.55" />
+    </svg>
+  );
+}
+function WallpaperGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.6" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="5" cy="6" r="1.2" fill="currentColor" />
+      <path d="M2.5 12l3.5-3.5 2.5 2.5 2-2 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function AppearanceGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" fill="#fff" />
+      <path d="M8 2a6 6 0 000 12V2z" fill="#000" fillOpacity="0.001" />
+      <path d="M8 2a6 6 0 010 12V2z" fill="#9b9b9f" />
+    </svg>
+  );
+}
+function InfoGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.2a1 1 0 110 2 1 1 0 010-2zM7 7.5h1.6v4.3H7z" />
+    </svg>
+  );
+}
+function UpdateGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M13 8a5 5 0 11-1.5-3.5M13 2v3h-3" />
+    </svg>
+  );
+}
+function StorageGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <rect x="2" y="4" width="12" height="8" rx="1.5" />
+      <path d="M5 8h.01M7 8h3" strokeLinecap="round" />
+    </svg>
+  );
+}
+function AirdropGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 9a4 4 0 016 0M3 6.5a7.5 7.5 0 0110 0M8 11.5l.01.01" />
+    </svg>
+  );
+}
+function GlobeGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <circle cx="8" cy="8" r="6.3" />
+      <path d="M2 8h12M8 1.7c1.8 2 1.8 10.6 0 12.6M8 1.7c-1.8 2-1.8 10.6 0 12.6" />
+    </svg>
+  );
+}
+function ClockGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="8" cy="8" r="6.3" />
+      <path d="M8 4.5V8l2.5 1.8" />
+    </svg>
+  );
+}
+function ShareGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 2v8M5.5 4.2L8 2l2.5 2.2" />
+      <path d="M4 8H3v6h10V8h-1" />
+    </svg>
+  );
+}
+function ResetGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2.5 8a5.5 5.5 0 109-4.2M2.5 3.5V6H5" />
+    </svg>
+  );
+}
+function BellGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 1.6a3.7 3.7 0 00-3.7 3.7c0 2.8-1 3.6-1.4 4.1-.2.2 0 .6.3.6h9.6c.3 0 .5-.4.3-.6-.4-.5-1.4-1.3-1.4-4.1A3.7 3.7 0 008 1.6zM6.4 11.4a1.6 1.6 0 003.2 0z" />
+    </svg>
+  );
+}
+function SoundGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6v4h2l3 2.5v-9L5 6H3z" fill="currentColor" />
+      <path d="M10.5 6a3 3 0 010 4M12 4.5a5 5 0 010 7" />
+    </svg>
+  );
+}
+function FocusGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M13 9.3A5.4 5.4 0 116.7 3 4.2 4.2 0 0013 9.3z" />
+    </svg>
+  );
+}
+function ScreenTimeGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 2h8M4 14h8M4.5 2c0 2.5 2 3.8 3.5 4.6C9.5 5.8 11.5 4.5 11.5 2M4.5 14c0-2.5 2-3.8 3.5-4.6 1.5.8 3.5 2.1 3.5 4.6" />
+    </svg>
+  );
+}
+function AccessibilityGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <circle cx="8" cy="8" r="6.4" />
+      <circle cx="8" cy="4.7" r="0.9" fill="currentColor" stroke="none" />
+      <path d="M4.5 6.2c1 .5 2.2.8 3.5.8s2.5-.3 3.5-.8M8 7v2.2M8 9.2l-1.6 3M8 9.2l1.6 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ControlCenterGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="2.5" y="2.5" width="11" height="4" rx="2" />
+      <rect x="2.5" y="9.5" width="11" height="4" rx="2" />
+      <circle cx="10.5" cy="4.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="5.5" cy="11.5" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function PrivacyGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M5 7V5.2a3 3 0 016 0v.3a.8.8 0 01-1.6 0v-.3a1.4 1.4 0 00-2.8 0V7h4.9A1.5 1.5 0 0112 8.5v3.6A1.5 1.5 0 0110.5 13.6h-5A1.5 1.5 0 014 12.1V8.5A1.5 1.5 0 015.5 7H5z" />
+    </svg>
+  );
+}
+function DesktopDockGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <rect x="2" y="3" width="12" height="8" rx="1.4" />
+      <path d="M5.5 13.5h5" strokeLinecap="round" />
+    </svg>
+  );
+}
+function DisplaysGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+      <circle cx="8" cy="8" r="2.6" />
+      <g stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+        <path d="M8 1.8v1.4M8 12.8v1.4M1.8 8h1.4M12.8 8h1.4M3.6 3.6l1 1M11.4 11.4l1 1M12.4 3.6l-1 1M4.6 11.4l-1 1" />
+      </g>
+    </svg>
+  );
+}
+function ScreenSaverGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <rect x="2" y="3" width="12" height="8" rx="1.4" />
+      <path d="M5.5 13.5h5M6 7l2.2 1.5L6 10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function BatteryGlyph() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 18 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="2" y="5" width="12" height="6" rx="1.6" />
+      <rect x="3.3" y="6.3" width="7" height="3.4" rx="0.6" fill="currentColor" stroke="none" />
+      <path d="M15 7v2" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 /* ==================== Dock ==================== */
@@ -1332,6 +1985,7 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
   const apps: { id: AppId; Icon: React.FC }[] = [
     { id: "notes", Icon: NotesIcon },
     { id: "photos", Icon: PhotosIcon },
+    { id: "settings", Icon: SettingsIcon },
   ];
 
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -1398,10 +2052,10 @@ function NotesIcon() {
   return <img src="/icons/notes.webp" alt="Notes" className="w-full h-full" draggable={false} />;
 }
 
-function SpotifyIcon() {
-  return <img src="/icons/spotify.png" alt="Spotify" className="w-full h-full" draggable={false} />;
-}
-
 function PhotosIcon() {
   return <img src="/icons/photos.webp" alt="Photos" className="w-full h-full" draggable={false} />;
+}
+
+function SettingsIcon() {
+  return <img src="/icons/settings.webp" alt="System Settings" className="w-full h-full" draggable={false} />;
 }

@@ -98,3 +98,7 @@ body {
 .notes-link:hover { color: #9A7209; }
 .dark .notes-link { color: #E5B547; }
 .dark .notes-link:hover { color: #F0C766; }
+
+/* Terminal blinking block cursor */
+@keyframes terminal-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+.terminal-cursor { animation: terminal-blink 1.1s step-end infinite; }

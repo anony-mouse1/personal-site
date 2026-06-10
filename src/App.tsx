@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { PartnerWordmark, type PartnerId } from "./partnerWordmarks";
 import { SpotifyApp } from "./spotifyApp";
+import { answerQuestion, FALLBACK_ANSWER, TERMINAL_INTRO } from "./bio";
 
-type AppId = "notes" | "spotify" | "photos" | "bear" | "safari" | "settings";
+type AppId = "notes" | "spotify" | "photos" | "bear" | "safari" | "settings" | "terminal";
 
 type WindowState = {
   id: AppId;
@@ -18,18 +19,18 @@ const APP_TITLES: Record<AppId, string> = {
   bear: "Projects",
   safari: "Safari",
   settings: "System Settings",
+  terminal: "Terminal",
 };
 
 type Theme = "light" | "dark";
 
 type Wallpaper = { id: string; name: string; value: string };
 const WALLPAPERS: Wallpaper[] = [
-  { id: "sonoma-horizon", name: "Sonoma Horizon", value: 'url("/wallpaper.jpg")' },
-  { id: "sonoma", name: "Sonoma", value: "linear-gradient(150deg,#0a5d8a 0%,#1f9e6b 45%,#8fd14f 100%)" },
-  { id: "ventura", name: "Ventura", value: "linear-gradient(150deg,#f6a13c 0%,#f3603f 55%,#7a2e8e 100%)" },
-  { id: "monterey", name: "Monterey", value: "linear-gradient(150deg,#5b3df5 0%,#b06ab3 50%,#ff9bd2 100%)" },
-  { id: "big-sur", name: "Big Sur", value: "linear-gradient(160deg,#16315f 0%,#3a6ea5 45%,#e08a5b 100%)" },
-  { id: "twilight", name: "Twilight", value: "linear-gradient(160deg,#1e2a78 0%,#7d3ca5 55%,#ff6f91 100%)" },
+  { id: "sonoma-horizon", name: "Sonoma Horizon", value: 'url("/wallpapers/sonoma-horizon.jpg")' },
+  { id: "sonoma", name: "Sonoma", value: 'url("/wallpapers/sonoma.jpg")' },
+  { id: "ventura", name: "Ventura", value: 'url("/wallpapers/ventura.jpg")' },
+  { id: "monterey", name: "Monterey", value: 'url("/wallpapers/monterey.jpg")' },
+  { id: "sierra", name: "Sierra", value: 'url("/wallpapers/sierra.jpg")' },
 ];
 
 export default function App() {
@@ -134,6 +135,7 @@ export default function App() {
               onChangeWallpaper={changeWallpaper}
             />
           )}
+          {w.id === "terminal" && <TerminalApp />}
         </Window>
       ))}
 
@@ -1187,11 +1189,7 @@ function PhotosFolderIcon({ active }: { active: boolean }) {
 }
 
 /* ==================== Settings ==================== */
-type SettingsSection =
-  | "wifi" | "bluetooth" | "network" | "vpn"
-  | "notifications" | "sound" | "focus" | "screentime"
-  | "general" | "appearance" | "accessibility" | "controlcenter" | "siri" | "privacy"
-  | "desktopdock" | "displays" | "wallpaper" | "screensaver" | "battery";
+type SettingsSection = "wifi" | "bluetooth" | "general" | "appearance" | "wallpaper";
 
 type SidebarItem = { id: SettingsSection; label: string; color: string; glyph: ReactNode };
 
@@ -1201,37 +1199,17 @@ const SETTINGS_GROUPS: SidebarItem[][] = [
   [
     { id: "wifi", label: "Wi-Fi", color: "#1e8bff", glyph: <WifiGlyph /> },
     { id: "bluetooth", label: "Bluetooth", color: "#1e8bff", glyph: <BluetoothGlyph /> },
-    { id: "network", label: "Network", color: "#1e8bff", glyph: <GlobeGlyph /> },
-    { id: "vpn", label: "VPN", color: "#1e8bff", glyph: <GlobeGlyph /> },
-  ],
-  [
-    { id: "notifications", label: "Notifications", color: "#ff3b30", glyph: <BellGlyph /> },
-    { id: "sound", label: "Sound", color: "#ff2d55", glyph: <SoundGlyph /> },
-    { id: "focus", label: "Focus", color: "#6e6ef0", glyph: <FocusGlyph /> },
-    { id: "screentime", label: "Screen Time", color: "#8a5cf6", glyph: <ScreenTimeGlyph /> },
   ],
   [
     { id: "general", label: "General", color: "#8e8e93", glyph: <GearGlyph /> },
     { id: "appearance", label: "Appearance", color: "#1c1c1e", glyph: <AppearanceGlyph /> },
-    { id: "accessibility", label: "Accessibility", color: "#007aff", glyph: <AccessibilityGlyph /> },
-    { id: "controlcenter", label: "Control Center", color: "#8e8e93", glyph: <ControlCenterGlyph /> },
-    { id: "siri", label: "Siri & Spotlight", color: "conic-gradient(from 210deg,#5ac8fa,#34c759,#ffcc00,#ff3b30,#af52de,#5ac8fa)", glyph: null },
-    { id: "privacy", label: "Privacy & Security", color: "#1e8bff", glyph: <PrivacyGlyph /> },
-  ],
-  [
-    { id: "desktopdock", label: "Desktop & Dock", color: "#1c1c1e", glyph: <DesktopDockGlyph /> },
-    { id: "displays", label: "Displays", color: "#1e8bff", glyph: <DisplaysGlyph /> },
     { id: "wallpaper", label: "Wallpaper", color: "linear-gradient(135deg,#34d3ff,#6c5ce7,#ff6bcb)", glyph: <WallpaperGlyph /> },
-    { id: "screensaver", label: "Screen Saver", color: "#1e8bff", glyph: <ScreenSaverGlyph /> },
-    { id: "battery", label: "Battery", color: "#34c759", glyph: <BatteryGlyph /> },
   ],
 ];
 
 const SETTINGS_TITLES: Record<SettingsSection, string> = Object.fromEntries(
   SETTINGS_GROUPS.flat().map((i) => [i.id, i.label])
 ) as Record<SettingsSection, string>;
-
-const IMPLEMENTED: SettingsSection[] = ["wifi", "bluetooth", "general", "wallpaper", "appearance"];
 
 function SettingsApp({
   theme,
@@ -1314,23 +1292,8 @@ function SettingsApp({
           {section === "general" && <GeneralPanel />}
           {section === "wallpaper" && <WallpaperPanel wallpaper={wallpaper} onChange={onChangeWallpaper} />}
           {section === "appearance" && <AppearancePanel theme={theme} onToggleTheme={onToggleTheme} />}
-          {!IMPLEMENTED.includes(section) && <PlaceholderPanel name={SETTINGS_TITLES[section]} />}
         </div>
       </div>
-    </div>
-  );
-}
-
-function PlaceholderPanel({ name }: { name: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center text-center py-20 text-gray-500 dark:text-gray-400">
-      <div className="w-12 h-12 rounded-[12px] bg-black/[0.06] dark:bg-white/10 flex items-center justify-center mb-3">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" />
-        </svg>
-      </div>
-      <p className="text-[14px] font-medium text-gray-700 dark:text-gray-300">{name}</p>
-      <p className="text-[12px] mt-1 max-w-xs">This section isn’t part of the demo yet — Wi-Fi, Bluetooth, General, Wallpaper, and Appearance are interactive.</p>
     </div>
   );
 }
@@ -1600,7 +1563,7 @@ function WallpaperPanel({ wallpaper, onChange }: { wallpaper: string; onChange: 
 
       {/* Presets */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[15px] font-bold">Dynamic Wallpapers</h2>
+        <h2 className="text-[15px] font-bold">Wallpapers</h2>
         <span className="text-[12px] text-[#0a82ff]">Show All ({WALLPAPERS.length})</span>
       </div>
       <div className="grid grid-cols-4 gap-x-4 gap-y-3">
@@ -1889,94 +1852,139 @@ function ResetGlyph() {
     </svg>
   );
 }
-function BellGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 1.6a3.7 3.7 0 00-3.7 3.7c0 2.8-1 3.6-1.4 4.1-.2.2 0 .6.3.6h9.6c.3 0 .5-.4.3-.6-.4-.5-1.4-1.3-1.4-4.1A3.7 3.7 0 008 1.6zM6.4 11.4a1.6 1.6 0 003.2 0z" />
-    </svg>
-  );
+
+/* ==================== Terminal App ====================
+ * Interactive "ask me about Fatimah" chatbot. Questions are answered from the
+ * local knowledge base in bio.ts (no backend) — see answerQuestion(). */
+type TermLine = { role: "user" | "bot"; text: string };
+
+const TerminalPrompt = () => (
+  <>
+    <span className="text-[#3aa675]">fatimah@MacBook-Pro</span>{" "}
+    <span className="text-[#5fb0e8]">~</span>{" "}
+    <span className="text-gray-200">%</span>{" "}
+  </>
+);
+
+// Render plain text, turning URLs and emails into clickable links.
+function linkify(text: string): ReactNode[] {
+  return text.split(/(\s+)/).map((tok, i) => {
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tok))
+      return <a key={i} href={`mailto:${tok}`} className="text-[#5fb0e8] hover:underline">{tok}</a>;
+    if (/^(https?:\/\/[^\s]+|[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|org|edu|so|inc|dev|store|net|gg|co)(\/[^\s]*)?)$/i.test(tok)) {
+      const href = tok.startsWith("http") ? tok : `https://${tok}`;
+      return <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="text-[#5fb0e8] hover:underline">{tok}</a>;
+    }
+    return <span key={i}>{tok}</span>;
+  });
 }
-function SoundGlyph() {
+
+function TerminalApp() {
+  const [history, setHistory] = useState<TermLine[]>([]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [history, busy]);
+
+  // Ask the Claude-backed endpoint for a freeform answer (used only when the local
+  // matcher has no confident answer). Falls back to the contact message on any error.
+  const askApi = async (question: string, priorTurns: TermLine[]): Promise<string> => {
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question,
+          history: priorTurns.map((t) => ({
+            role: t.role === "user" ? "user" : "assistant",
+            content: t.text,
+          })),
+        }),
+      });
+      if (!res.ok) return FALLBACK_ANSWER;
+      const data = (await res.json()) as { answer?: string };
+      return data.answer?.trim() || FALLBACK_ANSWER;
+    } catch {
+      return FALLBACK_ANSWER;
+    }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cmd = input.trim();
+    if (!cmd || busy) return;
+    if (cmd.toLowerCase() === "clear") {
+      setHistory([]);
+      setInput("");
+      return;
+    }
+
+    const priorTurns = history;
+    setHistory((h) => [...h, { role: "user", text: cmd }]);
+    setInput("");
+
+    // 1) Try the free, instant local matcher.
+    const local = answerQuestion(cmd);
+    if (local !== null) {
+      setHistory((h) => [...h, { role: "bot", text: local }]);
+      return;
+    }
+
+    // 2) Fall through to Claude for anything it can't confidently answer.
+    setBusy(true);
+    const reply = await askApi(cmd, priorTurns);
+    setHistory((h) => [...h, { role: "bot", text: reply }]);
+    setBusy(false);
+  };
+
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 6v4h2l3 2.5v-9L5 6H3z" fill="currentColor" />
-      <path d="M10.5 6a3 3 0 010 4M12 4.5a5 5 0 010 7" />
-    </svg>
-  );
-}
-function FocusGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M13 9.3A5.4 5.4 0 116.7 3 4.2 4.2 0 0013 9.3z" />
-    </svg>
-  );
-}
-function ScreenTimeGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 2h8M4 14h8M4.5 2c0 2.5 2 3.8 3.5 4.6C9.5 5.8 11.5 4.5 11.5 2M4.5 14c0-2.5 2-3.8 3.5-4.6 1.5.8 3.5 2.1 3.5 4.6" />
-    </svg>
-  );
-}
-function AccessibilityGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-      <circle cx="8" cy="8" r="6.4" />
-      <circle cx="8" cy="4.7" r="0.9" fill="currentColor" stroke="none" />
-      <path d="M4.5 6.2c1 .5 2.2.8 3.5.8s2.5-.3 3.5-.8M8 7v2.2M8 9.2l-1.6 3M8 9.2l1.6 3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function ControlCenterGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <rect x="2.5" y="2.5" width="11" height="4" rx="2" />
-      <rect x="2.5" y="9.5" width="11" height="4" rx="2" />
-      <circle cx="10.5" cy="4.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="5.5" cy="11.5" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function PrivacyGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M5 7V5.2a3 3 0 016 0v.3a.8.8 0 01-1.6 0v-.3a1.4 1.4 0 00-2.8 0V7h4.9A1.5 1.5 0 0112 8.5v3.6A1.5 1.5 0 0110.5 13.6h-5A1.5 1.5 0 014 12.1V8.5A1.5 1.5 0 015.5 7H5z" />
-    </svg>
-  );
-}
-function DesktopDockGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-      <rect x="2" y="3" width="12" height="8" rx="1.4" />
-      <path d="M5.5 13.5h5" strokeLinecap="round" />
-    </svg>
-  );
-}
-function DisplaysGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-      <circle cx="8" cy="8" r="2.6" />
-      <g stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-        <path d="M8 1.8v1.4M8 12.8v1.4M1.8 8h1.4M12.8 8h1.4M3.6 3.6l1 1M11.4 11.4l1 1M12.4 3.6l-1 1M4.6 11.4l-1 1" />
-      </g>
-    </svg>
-  );
-}
-function ScreenSaverGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-      <rect x="2" y="3" width="12" height="8" rx="1.4" />
-      <path d="M5.5 13.5h5M6 7l2.2 1.5L6 10" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function BatteryGlyph() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 18 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <rect x="2" y="5" width="12" height="6" rx="1.6" />
-      <rect x="3.3" y="6.3" width="7" height="3.4" rx="0.6" fill="currentColor" stroke="none" />
-      <path d="M15 7v2" strokeLinecap="round" />
-    </svg>
+    <div
+      ref={scrollRef}
+      onClick={() => inputRef.current?.focus()}
+      className="h-full w-full overflow-y-auto bg-[#1d1d1d] text-[13px] leading-[1.55] px-3.5 py-2.5 text-gray-300 selection:bg-white/20 cursor-text"
+      style={{ fontFamily: '"SF Mono", "Menlo", "Monaco", "Courier New", monospace' }}
+    >
+      <div className="text-gray-400 whitespace-pre-wrap">{linkify(TERMINAL_INTRO)}</div>
+
+      {history.map((line, i) =>
+        line.role === "user" ? (
+          <div key={i} className="mt-2">
+            <TerminalPrompt />
+            <span className="text-gray-100">{line.text}</span>
+          </div>
+        ) : (
+          <div key={i} className="mt-1 whitespace-pre-wrap text-gray-300">{linkify(line.text)}</div>
+        )
+      )}
+
+      {busy && (
+        <div className="mt-1 text-gray-500 flex items-center gap-1">
+          thinking<span className="terminal-cursor">▋</span>
+        </div>
+      )}
+
+      {!busy && (
+        <form onSubmit={submit} className="mt-2 flex items-center">
+          <TerminalPrompt />
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            autoFocus
+            spellCheck={false}
+            autoComplete="off"
+            aria-label="Ask the terminal a question about Fatimah"
+            className="flex-1 bg-transparent outline-none border-none text-gray-100 caret-gray-200 placeholder:text-gray-600"
+            placeholder="ask me anything about fatimah…"
+            style={{ fontFamily: "inherit", fontSize: "inherit" }}
+          />
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -1985,13 +1993,14 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
   const apps: { id: AppId; Icon: React.FC }[] = [
     { id: "notes", Icon: NotesIcon },
     { id: "photos", Icon: PhotosIcon },
+    { id: "terminal", Icon: TerminalIcon },
     { id: "settings", Icon: SettingsIcon },
   ];
 
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [mouseX, setMouseX] = useState<number | null>(null);
 
-  const BASE_SIZE = 56;
+  const BASE_SIZE = 68;
   const MAX_SCALE = 1.6;
   const FALLOFF_PX = 110;
 
@@ -2010,8 +2019,8 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
   return (
     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-40">
       <div
-        className="glass-dock rounded-2xl px-3 flex items-end gap-3 border border-white/40 shadow-2xl overflow-visible"
-        style={{ height: BASE_SIZE + 24, paddingBottom: 8, paddingTop: 8 }}
+        className="glass-dock rounded-2xl px-3 flex items-end justify-center gap-3 border border-white/40 shadow-2xl overflow-visible"
+        style={{ height: BASE_SIZE + 24, paddingBottom: 12, paddingTop: 12 }}
         onMouseMove={(e) => setMouseX(e.clientX)}
         onMouseLeave={() => setMouseX(null)}
       >
@@ -2039,7 +2048,7 @@ function Dock({ onOpen, openIds }: { onOpen: (id: AppId) => void; openIds: AppId
               >
                 <Icon />
               </div>
-              <div className={`w-1 h-1 rounded-full mt-1 ${isOpen ? "bg-white/80" : "bg-transparent"}`} />
+              <div className={`absolute left-1/2 -translate-x-1/2 -bottom-2 w-1 h-1 rounded-full ${isOpen ? "bg-white/80" : "bg-transparent"}`} />
             </button>
           );
         })}
@@ -2058,4 +2067,8 @@ function PhotosIcon() {
 
 function SettingsIcon() {
   return <img src="/icons/settings.webp" alt="System Settings" className="w-full h-full" draggable={false} />;
+}
+
+function TerminalIcon() {
+  return <img src="/icons/terminal.webp" alt="Terminal" className="w-full h-full" draggable={false} />;
 }

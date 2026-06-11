@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { BIO_CONTEXT, CONTACT_EMAIL } from "../src/bio";
+import { BIO_CONTEXT, CONTACT_EMAIL } from "../src/bio.js";
 
 // Server-side Claude proxy for the Terminal "ask me about Fatimah" chatbot.
 // The local keyword matcher (src/bio.ts) answers common questions for free; only

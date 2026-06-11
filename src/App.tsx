@@ -267,6 +267,9 @@ function Window({
     window.addEventListener("mouseup", onMouseUp);
   };
 
+  const isTerminal = state.id === "terminal";
+  const title = isTerminal ? "fatimah — -zsh — 80×24" : APP_TITLES[state.id];
+
   return (
     <div
       className="window-open absolute window-shadow rounded-xl overflow-hidden"
@@ -274,10 +277,10 @@ function Window({
       onMouseDown={onFocus}
     >
       <div
-        className="h-7 bg-[#e5e2e0]/95 dark:bg-[#2a2a2a]/95 flex items-center px-3 cursor-grab active:cursor-grabbing border-b border-black/10 dark:border-white/10"
+        className="relative h-7 bg-[#e5e2e0]/95 dark:bg-[#2a2a2a]/95 flex items-center px-3 cursor-grab active:cursor-grabbing border-b border-black/10 dark:border-white/10"
         onMouseDown={onMouseDown}
       >
-        <div className="flex gap-1.5 group">
+        <div className="flex gap-1.5 group z-10">
           <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             className="w-3 h-3 rounded-full bg-[#ff605c] hover:brightness-95 transition flex items-center justify-center"
@@ -289,6 +292,14 @@ function Window({
           </button>
           <button className="w-3 h-3 rounded-full bg-[#ffbd44] hover:brightness-95 transition" />
           <button className="w-3 h-3 rounded-full bg-[#00ca4e] hover:brightness-95 transition" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5">
+          {isTerminal && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#54a3ff" aria-hidden>
+              <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.05c.4 0 .78.16 1.06.44L11 6.85h8.5A1.5 1.5 0 0 1 21 8.35v9.15A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"/>
+            </svg>
+          )}
+          <span className="text-[12px] font-semibold tracking-tight text-black/60 dark:text-white/70 select-none truncate max-w-[70%]">{title}</span>
         </div>
       </div>
       <div className="bg-white" style={{ height: "calc(100% - 1.75rem)", overflow: "hidden" }}>
@@ -1860,9 +1871,9 @@ type TermLine = { role: "user" | "bot"; text: string };
 
 const TerminalPrompt = () => (
   <>
-    <span className="text-[#3aa675]">fatimah@MacBook-Pro</span>{" "}
-    <span className="text-[#5fb0e8]">~</span>{" "}
-    <span className="text-gray-200">%</span>{" "}
+    <span className="text-[#6cc26c]">fatimah</span>{" "}
+    <span className="text-[#5aa9f0]">~</span>{" "}
+    <span className="text-[#e0e0e0]">%</span>{" "}
   </>
 );
 
@@ -1883,6 +1894,11 @@ function TerminalApp() {
   const [history, setHistory] = useState<TermLine[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lastLogin] = useState(() => {
+    // Mimic the "Last login: Day Mon DD HH:MM:SS on ttysNNN" header Terminal.app prints.
+    const p = new Date().toString().split(" ");
+    return `Last login: ${p[0]} ${p[1]} ${p[2]} ${p[4]} on ttys001`;
+  });
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -1945,10 +1961,11 @@ function TerminalApp() {
     <div
       ref={scrollRef}
       onClick={() => inputRef.current?.focus()}
-      className="h-full w-full overflow-y-auto bg-[#1d1d1d] text-[13px] leading-[1.55] px-3.5 py-2.5 text-gray-300 selection:bg-white/20 cursor-text"
+      className="h-full w-full overflow-y-auto bg-[#1e1e1e] text-[13px] leading-[1.45] px-3.5 py-2 text-gray-300 selection:bg-white/20 cursor-text"
       style={{ fontFamily: '"SF Mono", "Menlo", "Monaco", "Courier New", monospace' }}
     >
-      <div className="text-gray-400 whitespace-pre-wrap">{linkify(TERMINAL_INTRO)}</div>
+      <div className="text-gray-500 whitespace-pre-wrap">{lastLogin}</div>
+      <div className="text-gray-400 whitespace-pre-wrap mt-1">{linkify(TERMINAL_INTRO)}</div>
 
       {history.map((line, i) =>
         line.role === "user" ? (

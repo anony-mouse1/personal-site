@@ -1870,11 +1870,11 @@ function ResetGlyph() {
 type TermLine = { role: "user" | "bot"; text: string };
 
 const TerminalPrompt = () => (
-  <>
-    <span className="text-[#6cc26c]">fatimah</span>{" "}
-    <span className="text-[#5aa9f0]">~</span>{" "}
-    <span className="text-[#e0e0e0]">%</span>{" "}
-  </>
+  <span className="whitespace-pre">
+    <span className="text-[#6cc26c]">fatimah</span>
+    <span className="text-[#5aa9f0]"> ~</span>
+    <span className="text-[#e0e0e0]"> % </span>
+  </span>
 );
 
 // Render plain text, turning URLs and emails into clickable links.

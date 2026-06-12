@@ -1200,7 +1200,7 @@ function PhotosFolderIcon({ active }: { active: boolean }) {
 }
 
 /* ==================== Settings ==================== */
-type SettingsSection = "wifi" | "bluetooth" | "general" | "appearance" | "wallpaper";
+type SettingsSection = "wifi" | "bluetooth" | "wallpaper";
 
 type SidebarItem = { id: SettingsSection; label: string; color: string; glyph: ReactNode };
 
@@ -1212,8 +1212,6 @@ const SETTINGS_GROUPS: SidebarItem[][] = [
     { id: "bluetooth", label: "Bluetooth", color: "#1e8bff", glyph: <BluetoothGlyph /> },
   ],
   [
-    { id: "general", label: "General", color: "#8e8e93", glyph: <GearGlyph /> },
-    { id: "appearance", label: "Appearance", color: "#1c1c1e", glyph: <AppearanceGlyph /> },
     { id: "wallpaper", label: "Wallpaper", color: "linear-gradient(135deg,#34d3ff,#6c5ce7,#ff6bcb)", glyph: <WallpaperGlyph /> },
   ],
 ];
@@ -1236,8 +1234,8 @@ function SettingsApp({
   const [section, setSection] = useState<SettingsSection>("wifi");
 
   return (
-    <div className="flex h-full bg-[#ececec] dark:bg-[#1e1e1e] text-gray-900 dark:text-gray-100 font-sans" style={{ fontSize: 13 }}>
-      <aside className="w-[230px] bg-[#e3e3e6]/80 dark:bg-[#262629]/85 backdrop-blur-xl border-r border-black/10 dark:border-white/10 flex flex-col flex-shrink-0">
+    <div className="dark flex h-full bg-[#1e1e1e] text-gray-100 font-sans" style={{ fontSize: 13 }}>
+      <aside className="w-[230px] bg-[#1c1c1e] border-r border-white/10 flex flex-col flex-shrink-0">
         {/* Search */}
         <div className="px-3 pt-3 pb-2">
           <div className="flex items-center gap-2 px-2.5 py-[6px] rounded-[8px] bg-white/70 dark:bg-white/10 border border-black/10 dark:border-white/10 shadow-sm">
@@ -1251,7 +1249,7 @@ function SettingsApp({
 
         <div className="flex-1 overflow-y-auto px-2.5 pb-3">
           {/* Profile */}
-          <button className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-left">
+          <button className="w-full flex items-center gap-2.5 px-2 py-2 mb-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-left">
             <div className="w-[40px] h-[40px] rounded-full bg-gradient-to-br from-[#d9b8a0] to-[#b88a6a] flex items-center justify-center text-[20px] flex-shrink-0">
               🤙
             </div>
@@ -1259,16 +1257,6 @@ function SettingsApp({
               <div className="font-semibold text-[14px] truncate">Fatimah Hussain</div>
               <div className="text-[12px] text-gray-500 dark:text-gray-400">Apple ID</div>
             </div>
-          </button>
-
-          {/* Family */}
-          <button className="w-full flex items-center gap-2.5 px-2 py-1.5 mb-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-left">
-            <div className="flex items-center -space-x-1.5 w-[40px] justify-center flex-shrink-0">
-              {["MI", "GI", "KH"].map((m) => (
-                <span key={m} className="w-[18px] h-[18px] rounded-full bg-gradient-to-br from-[#9a9aa2] to-[#6e6e78] ring-[1.5px] ring-[#e3e3e6] dark:ring-[#262629] text-white text-[7px] font-semibold flex items-center justify-center">{m}</span>
-              ))}
-            </div>
-            <span className="text-[13px]">Family</span>
           </button>
 
           {/* Grouped rows */}
@@ -1300,9 +1288,13 @@ function SettingsApp({
         <div className="px-7 py-5 max-w-[640px]">
           {section === "wifi" && <WifiPanel />}
           {section === "bluetooth" && <BluetoothPanel />}
-          {section === "general" && <GeneralPanel />}
-          {section === "wallpaper" && <WallpaperPanel wallpaper={wallpaper} onChange={onChangeWallpaper} />}
-          {section === "appearance" && <AppearancePanel theme={theme} onToggleTheme={onToggleTheme} />}
+          {section === "wallpaper" && (
+            <>
+              <WallpaperPanel wallpaper={wallpaper} onChange={onChangeWallpaper} />
+              <div className="h-px bg-black/10 dark:bg-white/10 my-6" />
+              <AppearancePanel theme={theme} onToggleTheme={onToggleTheme} />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -1326,7 +1318,7 @@ function SettingsRow({
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-2.5 px-2 py-[5px] rounded-[7px] text-left transition-colors ${
-        active ? "bg-[#0a82ff] text-white" : "hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
+        active ? "bg-white/[0.13]" : "hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
       }`}
     >
       <span
@@ -1388,27 +1380,45 @@ function WifiPanel() {
       <SettingsCard>
         <div className="flex items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-3">
-            <span className="w-7 h-7 rounded-[7px] bg-[#3478f6] flex items-center justify-center text-white"><WifiGlyph big /></span>
+            <span className="w-8 h-8 rounded-[8px] bg-[#0a84ff] flex items-center justify-center text-white"><WifiGlyph big /></span>
             <span className="text-[13px]">Wi-Fi</span>
           </div>
           <Toggle on={on} onClick={() => setOn(!on)} />
         </div>
+        {on && (
+          <div className="flex items-center gap-3 px-4 py-2.5 border-t border-black/[0.06] dark:border-white/[0.06]">
+            <div className="flex-1 min-w-0 leading-tight">
+              <div className="text-[13px]">Fatimah's Network</div>
+              <div className="text-[12px] text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5">
+                <span className="w-[9px] h-[9px] rounded-full bg-[#34c759]" /> Connected
+              </div>
+            </div>
+            <LockIcon />
+            <WifiBars bars={3} />
+            <button className="text-[12px] px-2.5 py-[3px] rounded-[6px] bg-black/[0.06] dark:bg-white/[0.14] hover:bg-black/10 dark:hover:bg-white/[0.2] text-gray-800 dark:text-gray-100 flex-shrink-0">Details…</button>
+          </div>
+        )}
       </SettingsCard>
 
       {on && (
         <>
+          <GroupLabel>Personal Hotspots</GroupLabel>
+          <SettingsCard>
+            <div className="flex items-center gap-3 px-4 py-2.5">
+              <span className="text-[13px] flex-1">Fatimah's iPhone</span>
+              <LockIcon />
+              <LinkIcon />
+            </div>
+          </SettingsCard>
+
           <GroupLabel>Known Network</GroupLabel>
           <SettingsCard>
             <div className="flex items-center gap-3 px-4 py-2.5">
-              <span className="w-6 h-6 rounded-[6px] bg-[#3478f6] flex items-center justify-center text-white"><WifiGlyph /></span>
-              <div className="flex-1">
-                <div className="text-[13px] font-medium">Fatimah's Network</div>
-                <div className="text-[11px] text-gray-500 dark:text-gray-400">Connected</div>
-              </div>
               <CheckIcon />
+              <span className="text-[13px] flex-1">Fatimah's Network</span>
               <LockIcon />
               <WifiBars bars={3} />
-              <InfoButton />
+              <MoreButton />
             </div>
           </SettingsCard>
 
@@ -1440,24 +1450,27 @@ function WifiPanel() {
 /* ---- Bluetooth panel ---- */
 function BluetoothPanel() {
   const [on, setOn] = useState(true);
-  const mine = [
-    { name: "Fatimah's AirPods Pro", status: "Connected", icon: "airpods" as const },
+  const devices = [
+    { name: "AirPods", icon: "airpods" as const },
+    { name: "Beats Solo 4", icon: "headphones" as const },
+    { name: "Fatimah's AirPods Pro", icon: "airpodspro" as const },
+    { name: "JBL Flip 6", icon: "speaker" as const },
   ];
   return (
     <>
       <SettingsCard>
-        <div className="flex items-center justify-between px-4 py-2.5">
-          <div className="flex items-center gap-3">
-            <span className="w-7 h-7 rounded-[7px] bg-[#3478f6] flex items-center justify-center text-white"><BluetoothGlyph big /></span>
-            <span className="text-[13px]">Bluetooth</span>
+        <div className="flex items-center gap-3.5 px-4 py-3.5">
+          <span className="w-9 h-9 rounded-[9px] bg-[#0a84ff] flex items-center justify-center text-white flex-shrink-0"><BluetoothGlyph big /></span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] font-semibold leading-tight">Bluetooth</div>
+            {on && (
+              <div className="text-[12px] text-gray-500 dark:text-gray-400 leading-snug mt-0.5">
+                This Mac is discoverable as “Fatimah's MacBook Air” while Bluetooth Settings is open.
+              </div>
+            )}
           </div>
           <Toggle on={on} onClick={() => setOn(!on)} />
         </div>
-        {on && (
-          <div className="px-4 py-2.5 border-t border-black/[0.06] dark:border-white/[0.06] text-[12px] text-gray-500 dark:text-gray-400">
-            This Mac is discoverable as “Fatimah's MacBook Pro” while Bluetooth Settings is open.
-          </div>
-        )}
       </SettingsCard>
 
       {on && (
@@ -1465,11 +1478,13 @@ function BluetoothPanel() {
           <GroupLabel>My Devices</GroupLabel>
           <SettingsCard>
             <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
-              {mine.map((d) => (
-                <div key={d.name} className="flex items-center gap-3 px-4 py-2.5">
+              {devices.map((d) => (
+                <div key={d.name} className="flex items-center gap-3.5 px-4 py-2.5">
                   <DeviceIcon kind={d.icon} />
-                  <span className="text-[13px] flex-1">{d.name}</span>
-                  <span className={`text-[12px] ${d.status === "Connected" ? "text-gray-500 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}`}>{d.status}</span>
+                  <div className="flex-1 min-w-0 leading-tight">
+                    <div className="text-[13px]">{d.name}</div>
+                    <div className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">Not Connected</div>
+                  </div>
                   <InfoButton />
                 </div>
               ))}
@@ -1478,37 +1493,6 @@ function BluetoothPanel() {
         </>
       )}
     </>
-  );
-}
-
-/* ---- General panel ---- */
-function GeneralPanel() {
-  const rows: { label: string; color: string; glyph: ReactNode }[] = [
-    { label: "About", color: "#8e8e93", glyph: <InfoGlyph /> },
-    { label: "Software Update", color: "#34c759", glyph: <UpdateGlyph /> },
-    { label: "Storage", color: "#34c759", glyph: <StorageGlyph /> },
-    { label: "AirDrop & Handoff", color: "#3478f6", glyph: <AirdropGlyph /> },
-    { label: "Login Items & Extensions", color: "#8e8e93", glyph: <GearGlyph /> },
-    { label: "Language & Region", color: "#3478f6", glyph: <GlobeGlyph /> },
-    { label: "Date & Time", color: "#ff453a", glyph: <ClockGlyph /> },
-    { label: "Sharing", color: "#3478f6", glyph: <ShareGlyph /> },
-    { label: "Time Machine", color: "#34c759", glyph: <ClockGlyph /> },
-    { label: "Transfer or Reset", color: "#8e8e93", glyph: <ResetGlyph /> },
-  ];
-  return (
-    <SettingsCard>
-      <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
-        {rows.map((r) => (
-          <button key={r.label} className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
-            <span className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center text-white flex-shrink-0" style={{ backgroundColor: r.color }}>
-              {r.glyph}
-            </span>
-            <span className="text-[13px] flex-1">{r.label}</span>
-            <Chevron />
-          </button>
-        ))}
-      </div>
-    </SettingsCard>
   );
 }
 
@@ -1740,18 +1724,51 @@ function InfoButton() {
     </button>
   );
 }
-function DeviceIcon({ kind }: { kind: "airpods" | "keyboard" | "mouse" }) {
+function LinkIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 dark:text-gray-400 flex-shrink-0">
+      <path d="M6.6 9.4a2.4 2.4 0 003.4 0l2-2a2.4 2.4 0 00-3.4-3.4l-1 1" />
+      <path d="M9.4 6.6a2.4 2.4 0 00-3.4 0l-2 2a2.4 2.4 0 003.4 3.4l1-1" />
+    </svg>
+  );
+}
+function MoreButton() {
+  return (
+    <button className="w-[22px] h-[22px] rounded-full bg-black/[0.06] dark:bg-white/[0.13] flex items-center justify-center text-gray-600 dark:text-gray-300 flex-shrink-0" aria-label="More">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="3.6" cy="8" r="1.15" /><circle cx="8" cy="8" r="1.15" /><circle cx="12.4" cy="8" r="1.15" />
+      </svg>
+    </button>
+  );
+}
+function DeviceIcon({ kind }: { kind: "airpods" | "airpodspro" | "headphones" | "speaker" }) {
   const glyph =
-    kind === "airpods" ? (
-      <path d="M6 3c-1.4 0-2.5 1.4-2.5 3.5S4.6 10 6 10s2.5-1.4 2.5-3.5S7.4 3 6 3zm-.3 7v3M10 3c1.4 0 2.5 1.4 2.5 3.5S11.4 10 10 10s-2.5-1.4-2.5-3.5S8.6 3 10 3zm.3 7v3" />
-    ) : kind === "keyboard" ? (
-      <path d="M2 4.5h12v7H2zM4 7h.01M6.5 7h.01M9 7h.01M11.5 7h.01M4.5 9.5h7" />
+    kind === "headphones" ? (
+      <>
+        <path d="M5 13v-1a7 7 0 0 1 14 0v1" />
+        <rect x="3.4" y="12.6" width="3.4" height="6.4" rx="1.5" />
+        <rect x="17.2" y="12.6" width="3.4" height="6.4" rx="1.5" />
+      </>
+    ) : kind === "speaker" ? (
+      <>
+        <rect x="6.5" y="3.5" width="11" height="17" rx="2.4" />
+        <circle cx="12" cy="14" r="3.1" />
+        <circle cx="12" cy="7" r="0.9" />
+      </>
+    ) : kind === "airpodspro" ? (
+      <>
+        <path d="M9 4.6c-1.2 0-2.1 1.3-2.1 3s.9 3 2.1 3 2.1-1.3 2.1-3-.9-3-2.1-3zm-.5 5.9 1 6.4-2.4 1.6" />
+        <path d="M15 4.6c1.2 0 2.1 1.3 2.1 3s-.9 3-2.1 3-2.1-1.3-2.1-3 .9-3 2.1-3zm.5 5.9-1 6.4 2.4 1.6" />
+      </>
     ) : (
-      <path d="M8 2.5a3.5 3.5 0 00-3.5 3.5v4A3.5 3.5 0 0011.5 10V6A3.5 3.5 0 008 2.5zM8 4v3" />
+      <>
+        <path d="M9 4.4c-1.3 0-2.3 1.4-2.3 3.3S7.7 11 9 11s2.3-1.4 2.3-3.3S10.3 4.4 9 4.4zm-.4 6.6v7.4" />
+        <path d="M15 4.4c1.3 0 2.3 1.4 2.3 3.3S16.3 11 15 11s-2.3-1.4-2.3-3.3S13.7 4.4 15 4.4zm.4 6.6v7.4" />
+      </>
     );
   return (
-    <span className="w-[26px] h-[26px] rounded-[7px] bg-[#5e5ce6] flex items-center justify-center text-white flex-shrink-0">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+    <span className="w-[30px] h-[30px] flex items-center justify-center text-gray-200 flex-shrink-0">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
         {glyph}
       </svg>
     </span>
@@ -1777,89 +1794,12 @@ function BluetoothGlyph({ big }: { big?: boolean }) {
     </svg>
   );
 }
-function GearGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 5.2A2.8 2.8 0 108 10.8 2.8 2.8 0 008 5.2zm0 1.6a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
-      <path d="M7 1h2l.3 1.6a5.6 5.6 0 011.3.55l1.4-.85 1.4 1.4-.85 1.4c.24.4.43.84.55 1.3L15 6.7v2l-1.6.3c-.12.46-.31.9-.55 1.3l.85 1.4-1.4 1.4-1.4-.85c-.4.24-.84.43-1.3.55L9 14.3H7l-.3-1.6a5.6 5.6 0 01-1.3-.55l-1.4.85-1.4-1.4.85-1.4a5.6 5.6 0 01-.55-1.3L1 8.7v-2l1.6-.3c.12-.46.31-.9.55-1.3l-.85-1.4 1.4-1.4 1.4.85c.4-.24.84-.43 1.3-.55L7 1z" fillOpacity="0.55" />
-    </svg>
-  );
-}
 function WallpaperGlyph() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
       <rect x="1.5" y="2.5" width="13" height="11" rx="1.6" stroke="currentColor" strokeWidth="1.3" />
       <circle cx="5" cy="6" r="1.2" fill="currentColor" />
       <path d="M2.5 12l3.5-3.5 2.5 2.5 2-2 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function AppearanceGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="6" fill="#fff" />
-      <path d="M8 2a6 6 0 000 12V2z" fill="#000" fillOpacity="0.001" />
-      <path d="M8 2a6 6 0 010 12V2z" fill="#9b9b9f" />
-    </svg>
-  );
-}
-function InfoGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.2a1 1 0 110 2 1 1 0 010-2zM7 7.5h1.6v4.3H7z" />
-    </svg>
-  );
-}
-function UpdateGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M13 8a5 5 0 11-1.5-3.5M13 2v3h-3" />
-    </svg>
-  );
-}
-function StorageGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <rect x="2" y="4" width="12" height="8" rx="1.5" />
-      <path d="M5 8h.01M7 8h3" strokeLinecap="round" />
-    </svg>
-  );
-}
-function AirdropGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 9a4 4 0 016 0M3 6.5a7.5 7.5 0 0110 0M8 11.5l.01.01" />
-    </svg>
-  );
-}
-function GlobeGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-      <circle cx="8" cy="8" r="6.3" />
-      <path d="M2 8h12M8 1.7c1.8 2 1.8 10.6 0 12.6M8 1.7c-1.8 2-1.8 10.6 0 12.6" />
-    </svg>
-  );
-}
-function ClockGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="6.3" />
-      <path d="M8 4.5V8l2.5 1.8" />
-    </svg>
-  );
-}
-function ShareGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 2v8M5.5 4.2L8 2l2.5 2.2" />
-      <path d="M4 8H3v6h10V8h-1" />
-    </svg>
-  );
-}
-function ResetGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2.5 8a5.5 5.5 0 109-4.2M2.5 3.5V6H5" />
     </svg>
   );
 }
@@ -1961,7 +1901,7 @@ function TerminalApp() {
     <div
       ref={scrollRef}
       onClick={() => inputRef.current?.focus()}
-      className="h-full w-full overflow-y-auto bg-[#1e1e1e] text-[13px] leading-[1.45] px-3.5 py-2 text-gray-300 selection:bg-white/20 cursor-text"
+      className="h-full w-full overflow-y-auto bg-[#1e1e1e] text-[13px] leading-[1.45] px-3.5 pt-2 pb-20 text-gray-300 selection:bg-white/20 cursor-text"
       style={{ fontFamily: '"SF Mono", "Menlo", "Monaco", "Courier New", monospace' }}
     >
       <div className="text-gray-500 whitespace-pre-wrap">{lastLogin}</div>

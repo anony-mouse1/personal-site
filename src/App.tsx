@@ -30,7 +30,13 @@ const WALLPAPERS: Wallpaper[] = [
   { id: "sonoma", name: "Sonoma", value: 'url("/wallpapers/sonoma.jpg")' },
   { id: "ventura", name: "Ventura", value: 'url("/wallpapers/ventura.jpg")' },
   { id: "monterey", name: "Monterey", value: 'url("/wallpapers/monterey.jpg")' },
+  { id: "bigsur", name: "Big Sur", value: 'url("/wallpapers/bigsur.jpg")' },
+  { id: "catalina", name: "Catalina", value: 'url("/wallpapers/catalina.jpg")' },
+  { id: "mojave", name: "Mojave", value: 'url("/wallpapers/mojave.jpg")' },
+  { id: "highsierra", name: "High Sierra", value: 'url("/wallpapers/highsierra.jpg")' },
   { id: "sierra", name: "Sierra", value: 'url("/wallpapers/sierra.jpg")' },
+  { id: "elcapitan", name: "El Capitan", value: 'url("/wallpapers/elcapitan.jpg")' },
+  { id: "yosemite", name: "Yosemite", value: 'url("/wallpapers/yosemite.jpg")' },
 ];
 
 export default function App() {
@@ -1200,7 +1206,7 @@ function PhotosFolderIcon({ active }: { active: boolean }) {
 }
 
 /* ==================== Settings ==================== */
-type SettingsSection = "wifi" | "bluetooth" | "wallpaper";
+type SettingsSection = "wifi" | "bluetooth" | "appearance";
 
 type SidebarItem = { id: SettingsSection; label: string; color: string; glyph: ReactNode };
 
@@ -1212,7 +1218,7 @@ const SETTINGS_GROUPS: SidebarItem[][] = [
     { id: "bluetooth", label: "Bluetooth", color: "#1e8bff", glyph: <BluetoothGlyph /> },
   ],
   [
-    { id: "wallpaper", label: "Wallpaper", color: "linear-gradient(135deg,#34d3ff,#6c5ce7,#ff6bcb)", glyph: <WallpaperGlyph /> },
+    { id: "appearance", label: "Appearance", color: "#000000", glyph: <AppearanceGlyph /> },
   ],
 ];
 
@@ -1288,7 +1294,7 @@ function SettingsApp({
         <div className="px-7 py-5 max-w-[640px]">
           {section === "wifi" && <WifiPanel />}
           {section === "bluetooth" && <BluetoothPanel />}
-          {section === "wallpaper" && (
+          {section === "appearance" && (
             <>
               <WallpaperPanel wallpaper={wallpaper} onChange={onChangeWallpaper} />
               <div className="h-px bg-black/10 dark:bg-white/10 my-6" />
@@ -1369,12 +1375,6 @@ function GroupLabel({ children }: { children: ReactNode }) {
 /* ---- Wi-Fi panel ---- */
 function WifiPanel() {
   const [on, setOn] = useState(true);
-  const others = [
-    { name: "Berkeley-IoT", secure: true, bars: 3 },
-    { name: "eduroam", secure: true, bars: 2 },
-    { name: "CalVisitor", secure: false, bars: 2 },
-    { name: "xfinitywifi", secure: false, bars: 1 },
-  ];
   return (
     <>
       <SettingsCard>
@@ -1421,26 +1421,6 @@ function WifiPanel() {
               <MoreButton />
             </div>
           </SettingsCard>
-
-          <GroupLabel>Other Networks</GroupLabel>
-          <SettingsCard>
-            <div className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
-              {others.map((n) => (
-                <div key={n.name} className="flex items-center gap-3 px-4 py-2.5">
-                  <span className="text-[13px] flex-1">{n.name}</span>
-                  {n.secure && <LockIcon />}
-                  <WifiBars bars={n.bars} />
-                </div>
-              ))}
-            </div>
-          </SettingsCard>
-
-          <SettingsCard>
-            <div className="flex items-center justify-between px-4 py-2.5 mt-4">
-              <span className="text-[13px]">Ask to join networks</span>
-              <span className="text-[12px] text-gray-500 dark:text-gray-400 flex items-center gap-1">Notify <Chevron /></span>
-            </div>
-          </SettingsCard>
         </>
       )}
     </>
@@ -1452,9 +1432,7 @@ function BluetoothPanel() {
   const [on, setOn] = useState(true);
   const devices = [
     { name: "AirPods", icon: "airpods" as const },
-    { name: "Beats Solo 4", icon: "headphones" as const },
     { name: "Fatimah's AirPods Pro", icon: "airpodspro" as const },
-    { name: "JBL Flip 6", icon: "speaker" as const },
   ];
   return (
     <>
@@ -1742,6 +1720,15 @@ function MoreButton() {
   );
 }
 function DeviceIcon({ kind }: { kind: "airpods" | "airpodspro" | "headphones" | "speaker" }) {
+  // AirPods rows use real Apple product photos; other devices use line-art glyphs.
+  if (kind === "airpods" || kind === "airpodspro") {
+    const src = kind === "airpodspro" ? "/devices/airpods-pro.png" : "/devices/earpods.png";
+    return (
+      <span className="w-[30px] h-[30px] flex items-center justify-center flex-shrink-0">
+        <img src={src} alt="" className="max-w-[30px] max-h-[30px] object-contain" />
+      </span>
+    );
+  }
   const glyph =
     kind === "headphones" ? (
       <>
@@ -1749,21 +1736,11 @@ function DeviceIcon({ kind }: { kind: "airpods" | "airpodspro" | "headphones" | 
         <rect x="3.4" y="12.6" width="3.4" height="6.4" rx="1.5" />
         <rect x="17.2" y="12.6" width="3.4" height="6.4" rx="1.5" />
       </>
-    ) : kind === "speaker" ? (
+    ) : (
       <>
         <rect x="6.5" y="3.5" width="11" height="17" rx="2.4" />
         <circle cx="12" cy="14" r="3.1" />
         <circle cx="12" cy="7" r="0.9" />
-      </>
-    ) : kind === "airpodspro" ? (
-      <>
-        <path d="M9 4.6c-1.2 0-2.1 1.3-2.1 3s.9 3 2.1 3 2.1-1.3 2.1-3-.9-3-2.1-3zm-.5 5.9 1 6.4-2.4 1.6" />
-        <path d="M15 4.6c1.2 0 2.1 1.3 2.1 3s-.9 3-2.1 3-2.1-1.3-2.1-3 .9-3 2.1-3zm.5 5.9-1 6.4 2.4 1.6" />
-      </>
-    ) : (
-      <>
-        <path d="M9 4.4c-1.3 0-2.3 1.4-2.3 3.3S7.7 11 9 11s2.3-1.4 2.3-3.3S10.3 4.4 9 4.4zm-.4 6.6v7.4" />
-        <path d="M15 4.4c1.3 0 2.3 1.4 2.3 3.3S16.3 11 15 11s-2.3-1.4-2.3-3.3S13.7 4.4 15 4.4zm.4 6.6v7.4" />
       </>
     );
   return (
@@ -1794,12 +1771,13 @@ function BluetoothGlyph({ big }: { big?: boolean }) {
     </svg>
   );
 }
-function WallpaperGlyph() {
+function AppearanceGlyph() {
+  // macOS "Appearance" icon: a two-tone circle (light left half, gray right half).
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-      <rect x="1.5" y="2.5" width="13" height="11" rx="1.6" stroke="currentColor" strokeWidth="1.3" />
-      <circle cx="5" cy="6" r="1.2" fill="currentColor" />
-      <path d="M2.5 12l3.5-3.5 2.5 2.5 2-2 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="15" height="15" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="5.6" fill="#f5f5f7" />
+      <path d="M8 2.4a5.6 5.6 0 010 11.2z" fill="#8e8e93" />
+      <circle cx="8" cy="8" r="5.6" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.6" />
     </svg>
   );
 }

@@ -85,6 +85,14 @@ body {
   opacity: 1;
 }
 
+/* Horizontal press rail: hide the scrollbar, carets do the paging */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Press card image treatment */
 .press-img {
   filter: saturate(0.85);

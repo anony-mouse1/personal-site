@@ -33,7 +33,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
         url: "https://chatgpt.com/futures/#finnie",
         title: "ChatGPT Futures 2026 Awardee",
         description:
-          "Recognized in OpenAI's inaugural ChatGPT Futures Class of 2026 — 26 students and young builders honored for shipping with AI.",
+          "Recognized in OpenAI's inaugural ChatGPT Futures Class of 2026: 26 students and young builders honored for shipping with AI.",
         source: "OpenAI",
         date: "May 6, 2026",
         image: "/press-chatgpt-futures.png",
@@ -43,7 +43,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
         url: "https://www.linkedin.com/posts/fatimah-hussain_mom-look-i-made-it-on-the-new-york-times-activity-7419828292716806144-GYWH",
         title: "Featured on a New York Times Square billboard",
         description:
-          "Karat × fatimahs.guide — 300M views and 200K followers as an educational content creator, lit up in Times Square.",
+          "Karat × fatimahs.guide: 300M views and 200K followers as an educational content creator, lit up in Times Square.",
         source: "Times Square",
         date: "2025",
         image: "/press-billboard.jpeg",
@@ -70,7 +70,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
       },
       {
         url: "https://www.allpeoplepower.com/",
-        title: "APP Accelerator — First Place Winner: $15K Grant",
+        title: "APP Accelerator First Place Winner: $15K Grant",
         description:
           "Won first place in the All People Powered Accelerator pitch competition for finnie, awarded a $15,000 grant from HiiiWAY.",
         source: "All People Power",
@@ -79,7 +79,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
       },
       {
         url: "https://codetv.dev/series/web-dev-challenge/s3/e3-bring-people-together/play",
-        title: "Web Dev Challenge S3E3 — An app to bring people together",
+        title: "Web Dev Challenge S3E3: An app to bring people together",
         description:
           "Featured on CodeTV's Web Dev Challenge: building an app to make us less lonely, maybe.",
         source: "CodeTV",
@@ -111,7 +111,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
         url: "https://www.ktvu.com/video/1413508",
         title: "Contra Costa Shark Tank Youth Competition",
         description:
-          "Bay Area teen entrepreneur kickstarts a local youth competition — live in-studio on KTVU with the first-place winner.",
+          "Bay Area teen entrepreneur kickstarts a local youth competition, live in-studio on KTVU with the first-place winner.",
         source: "KTVU FOX 2",
         date: "2023",
         image: "/press-shark-tank.png",
@@ -120,7 +120,7 @@ const PRESS: { era: string; items: PressItem[] }[] = [
         url: "https://thewildcattribune.com/17839/news/learning-by-doing-how-fatimah-hussain-journeyed-through-her-1st-3d-printing-business/",
         title: "Learning by Doing: A First 3D Printing Business",
         description:
-          "Profile on starting Unicorn Lock — a child-safe lock business — and the lessons of consistency, failure, and impact across four early ventures.",
+          "Profile on starting Unicorn Lock, a child-safe lock business, and the lessons of consistency, failure, and impact across four early ventures.",
         source: "The Wildcat Tribune",
         date: "Oct 10, 2023",
         image: "/press-wildcat-tribune.jpg",
@@ -153,7 +153,7 @@ const WORK = [
     url: "https://www.instagram.com/fatimahs.guide",
     role: "Creator · now",
     description:
-      "Educational content helping high school and college students pay for college and find unique extracurriculars — 200M+ views and 250K+ followers across platforms, with a mentorship program on the way.",
+      "Educational content helping high school and college students pay for college and find unique extracurriculars. 200M+ views and 250K+ followers across platforms, with a mentorship program on the way.",
   },
   {
     index: "03",
@@ -161,7 +161,7 @@ const WORK = [
     url: "https://stan.store/fatimahsguide",
     role: "Templates & resources",
     description:
-      "Templates and resources for high school and college students, all in one hub — college apps, scholarships, productivity and more.",
+      "Templates and resources for high school and college students, all in one hub: college apps, scholarships, productivity and more.",
   },
   {
     index: "04",
@@ -205,6 +205,7 @@ const SOCIALS = [
 ];
 
 const NAV = [
+  { label: "Home", href: "/" },
   { label: "About", href: "#about" },
   { label: "Press", href: "#press" },
   { label: "Work", href: "#work" },
@@ -335,8 +336,8 @@ function About() {
               Founder of{" "}
               <Ext href="https://www.instagram.com/fatimahs.guide" className="elink">
                 Fatimah's Guide
-              </Ext>{" "}
-              — helping high school &amp; college students pay for college and find unique
+              </Ext>
+              , helping high school &amp; college students pay for college and find unique
               extracurriculars. 200M views, 250K followers, partnered with OpenAI, Notion, Adobe,
               Microsoft and more.
             </li>
@@ -344,8 +345,8 @@ function About() {
               Building{" "}
               <Ext href="https://findmescholarships.com" className="elink">
                 finnie
-              </Ext>{" "}
-              — a tool that helps students afford college through simpler scholarship search.
+              </Ext>
+              , a tool that helps students afford college through simpler scholarship search.
               Recent winner of the{" "}
               <Ext href="https://chatgpt.com/futures/#finnie" className="elink">
                 ChatGPT Futures grant
@@ -364,26 +365,26 @@ function About() {
         <div>
           <h3 className="kicker mb-5">Previously</h3>
           <ul className="space-y-5 text-[17px] leading-relaxed text-(--color-muted)">
-            <li>Building since age 14 — starting with children's business fairs in her hometown.</li>
+            <li>Building since age 14, starting with children's business fairs in her hometown.</li>
             <li>
               Founding cohort of{" "}
               <Ext href="https://www.foundherhouse.org/" className="elink text-(--color-ink)">
                 FoundHer House
               </Ext>
-              , the all-female hacker house in SF covered by The New York Times and USA Today —
-              residents raised $7M by the end of the cohort.
+              , the all-female hacker house in SF covered by The New York Times and USA Today,
+              where residents raised $7M by the end of the cohort.
             </li>
             <li>
               Ran{" "}
               <Ext href="https://youtube.com/@2minmaths" className="elink text-(--color-ink)">
                 2minmaths
               </Ext>
-              , breaking down difficult math concepts in two minutes — 25K subscribers across TikTok
-              and YouTube.
+              , breaking down difficult math concepts in two minutes, reaching 25K subscribers
+              across TikTok and YouTube.
             </li>
             <li>
               Founded perky3dprints, a five-figure 3D-printing business in high school, and shipped
-              Blackjack Jackpot Cards to the App Store — hand-coded, pre-AI tools.
+              Blackjack Jackpot Cards to the App Store, hand-coded pre-AI tools.
             </li>
             <li>
               Two{" "}
@@ -427,49 +428,59 @@ function PressCard({ item }: { item: PressItem }) {
   );
 }
 
-function PressRow({ item }: { item: PressItem }) {
-  return (
-    <Ext
-      href={item.url}
-      className="group grid gap-1 md:grid-cols-[190px_1fr_auto] md:gap-8 py-5 items-baseline"
-    >
-      <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-accent)">{item.source}</p>
-      <div>
-        <h3 className="display text-lg md:text-xl font-medium leading-snug group-hover:text-(--color-accent) transition-colors">
-          {item.title}
-        </h3>
-        <p className="mt-1 text-[14px] leading-relaxed text-(--color-muted) max-w-2xl">
-          {item.description}
-        </p>
-      </div>
-      <p className="text-[11px] uppercase tracking-[0.15em] text-(--color-faint)">{item.date}</p>
-    </Ext>
-  );
-}
-
 function Press() {
-  const featured = PRESS.flatMap((g) => g.items).filter((i) => i.featured);
+  const items = PRESS.flatMap((g) => g.items);
+  const railRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState({ left: false, right: true });
+
+  function updateArrows() {
+    const el = railRef.current;
+    if (!el) return;
+    setCanScroll({
+      left: el.scrollLeft > 8,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 8,
+    });
+  }
+
+  function page(dir: 1 | -1) {
+    railRef.current?.scrollBy({
+      left: dir * Math.round(railRef.current.clientWidth * 0.85),
+      behavior: "smooth",
+    });
+  }
+
+  const caret =
+    "flex h-11 w-11 items-center justify-center border border-(--color-rule) text-xl leading-none " +
+    "text-(--color-ink) transition-colors hover:border-(--color-accent) hover:text-(--color-accent) " +
+    "disabled:opacity-30 disabled:hover:border-(--color-rule) disabled:hover:text-(--color-ink)";
+
   return (
     <section className="mx-auto max-w-6xl px-5 md:px-8">
       <SectionHeading id="press" kicker="No. 2" title="Press" />
-      <div className="grid gap-10 md:grid-cols-3 md:gap-8 pb-14">
-        {featured.map((item) => (
-          <PressCard key={item.url} item={item} />
+      <div className="-mt-4 flex items-center justify-between pb-8">
+        <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-faint)">
+          {items.length} features · scroll for more
+        </p>
+        <div className="flex gap-2">
+          <button type="button" aria-label="Previous press" onClick={() => page(-1)} disabled={!canScroll.left} className={caret}>
+            ‹
+          </button>
+          <button type="button" aria-label="More press" onClick={() => page(1)} disabled={!canScroll.right} className={caret}>
+            ›
+          </button>
+        </div>
+      </div>
+      <div
+        ref={railRef}
+        onScroll={updateArrows}
+        className="no-scrollbar flex snap-x gap-8 overflow-x-auto pb-6"
+      >
+        {items.map((item) => (
+          <div key={item.url} className="w-[300px] shrink-0 snap-start md:w-[360px]">
+            <PressCard item={item} />
+          </div>
         ))}
       </div>
-      {PRESS.map((group) => (
-        <div key={group.era} className="pb-10">
-          <div className="rule" />
-          <h3 className="kicker pt-4 pb-2">{group.era}</h3>
-          <div className="divide-y divide-(--color-rule)">
-            {group.items
-              .filter((i) => !i.featured)
-              .map((item) => (
-                <PressRow key={item.url} item={item} />
-              ))}
-          </div>
-        </div>
-      ))}
     </section>
   );
 }
@@ -524,13 +535,13 @@ function Partners() {
 }
 
 /* ============================================================
-   Ask — reuses the existing local matcher + /api/ask endpoint
+   Ask: reuses the existing local matcher + /api/ask endpoint
    ============================================================ */
 
 type Turn = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
-  "I'm a student — how can you help?",
+  "I'm a student, how can you help?",
   "How do I find scholarships?",
   "What is finnie?",
   "How did you grow to 200M views?",
@@ -578,7 +589,7 @@ function Ask() {
         <div>
           <p className="text-[17px] leading-relaxed text-(--color-muted)">
             An assistant trained on Fatimah's work. Whether you're a student, creator, or founder,
-            ask it anything — it will point you to the right resource.
+            ask it anything and it will point you to the right resource.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
@@ -654,7 +665,7 @@ function Footer() {
       <div className="grid gap-12 md:grid-cols-2 pb-16">
         <div>
           <p className="text-[17px] leading-relaxed text-(--color-muted) max-w-md">
-            For collaborations, mentorship, speaking, or anything else — the fastest way to reach
+            For collaborations, mentorship, speaking, or anything else, the fastest way to reach
             Fatimah is email.
           </p>
           <a

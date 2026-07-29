@@ -1,5 +1,7 @@
+"use client";
+
 import { useRef, useState } from "react";
-import { CONTACT_EMAIL, answerQuestion, FALLBACK_ANSWER } from "./bio";
+import { CONTACT_EMAIL, answerQuestion, FALLBACK_ANSWER } from "@/lib/bio";
 
 /* ============================================================
    Content
@@ -535,7 +537,7 @@ function Partners() {
 }
 
 /* ============================================================
-   Ask: reuses the existing local matcher + /api/ask endpoint
+   Ask: answers entirely from the local matcher in lib/bio.ts
    ============================================================ */
 
 type Turn = { role: "user" | "assistant"; content: string };
@@ -550,33 +552,15 @@ const SUGGESTIONS = [
 function Ask() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
-  async function submit(raw?: string) {
+  function submit(raw?: string) {
     const question = (raw ?? input).trim();
-    if (!question || busy) return;
+    if (!question) return;
     setInput("");
-    const history = turns;
-    setTurns((t) => [...t, { role: "user", content: question }]);
-    setBusy(true);
 
-    let answer = answerQuestion(question);
-    if (!answer) {
-      try {
-        const res = await fetch("/api/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question, history }),
-        });
-        const data = (await res.json()) as { answer?: string; error?: string };
-        answer = res.ok && data.answer ? data.answer : FALLBACK_ANSWER;
-      } catch {
-        answer = FALLBACK_ANSWER;
-      }
-    }
-    setTurns((t) => [...t, { role: "assistant", content: answer! }]);
-    setBusy(false);
+    const answer = answerQuestion(question) || FALLBACK_ANSWER;
+    setTurns((t) => [...t, { role: "user", content: question }, { role: "assistant", content: answer }]);
     requestAnimationFrame(() =>
       threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" })
     );
@@ -596,8 +580,7 @@ function Ask() {
               <button
                 key={s}
                 onClick={() => submit(s)}
-                disabled={busy}
-                className="border border-(--color-rule) px-3 py-1.5 text-[13px] text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent) transition-colors disabled:opacity-50"
+                className="border border-(--color-rule) px-3 py-1.5 text-[13px] text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent) transition-colors"
               >
                 {s}
               </button>
@@ -625,11 +608,6 @@ function Ask() {
                 </p>
               </div>
             ))}
-            {busy && (
-              <p className="text-[15px]">
-                <span className="thinking-cursor" />
-              </p>
-            )}
           </div>
           <form
             onSubmit={(e) => {
@@ -646,7 +624,7 @@ function Ask() {
             />
             <button
               type="submit"
-              disabled={busy || !input.trim()}
+              disabled={!input.trim()}
               className="px-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-(--color-accent) disabled:text-(--color-faint) transition-colors"
             >
               Send

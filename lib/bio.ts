@@ -1,18 +1,9 @@
-// Knowledge base for the Terminal "how can Fatimah help you" assistant.
-// This is the single source of truth the terminal searches to answer questions.
-// It mirrors the facts shown across the site (Notes app, brands, links, press) and
-// is framed around helping the visitor (student / creator / founder), not just bio Q&A.
+// Knowledge base for the "how can Fatimah help you" assistant (the Ask section).
+// This is the single source of truth the assistant searches to answer questions.
+// It mirrors the facts shown across the site (brands, links, press) and is framed
+// around helping the visitor (student / creator / founder), not just bio Q&A.
 
 export const CONTACT_EMAIL = "fatimahhussain@berkeley.edu";
-
-export const TERMINAL_INTRO = [
-  "fatimah.sh: how can Fatimah help you?  👋",
-  "",
-  "Whether you're a student, creator, or founder, I can point you to the right resources.",
-  'Try:  "i\'m a student, how can you help?"  ·  "how do i find scholarships?"  ·  "what is finnie?"',
-  "You can also ask anything about Fatimah: her work, projects, brands, or links.",
-  "Type 'help' for ideas, or 'clear' to reset.",
-].join("\n");
 
 const ANSWERS = {
   // ----- how Fatimah can help the visitor -----
@@ -221,7 +212,7 @@ const INTENTS: Intent[] = [
   { id: "about", keywords: ["about", "who", "bio", "yourself", "her", "she", "fatimah"], phrases: ["tell me about", "who is", "introduce"] },
 ];
 
-// Shown when neither the local matcher nor the API can answer.
+// Shown when the local matcher can't answer.
 export const FALLBACK_ANSWER = ANSWERS.fallback;
 
 function normalize(s: string) {
@@ -229,7 +220,7 @@ function normalize(s: string) {
 }
 
 // Returns a canned answer for a confidently-matched topic, or null when nothing
-// matches - the caller can then fall through to the Claude API for a freeform reply.
+// matches - the caller then shows FALLBACK_ANSWER (email Fatimah directly).
 export function answerQuestion(raw: string): string | null {
   const q = normalize(raw);
   if (!q) return "";
@@ -252,60 +243,3 @@ export function answerQuestion(raw: string): string | null {
   if (!best) return null;
   return ANSWERS[best.id];
 }
-
-// Full factual dossier handed to Claude (Haiku) as grounding context for freeform
-// questions the local matcher can't handle. Keep this in sync with the site's content.
-export const BIO_CONTEXT = `
-ABOUT
-- Fatimah Hussain. 2nd-year studying Electrical Engineering & Computer Science (EECS) at UC Berkeley.
-- Founder of Fatimah's Guide - helps high-school & college students pay for college, find unique extracurriculars, and more. 200M+ views and 250k+ followers across socials.
-- Has been building things since she was 14.
-- Public email: ${CONTACT_EMAIL}
-
-WHAT SHE'S BUILDING NOW
-- In NYC (splits summers between SF and New York City).
-- Building edtech tools and working with some companies.
-- Building finnie, a scholarship-search tool - findmescholarships.com. Recently won the ChatGPT Futures grant.
-- Building a mentorship program through Fatimah's Guide.
-
-HOW SHE CAN HELP PEOPLE
-- Students: scholarships and affording college (finnie), free guidance via Fatimah's Guide, a forthcoming mentorship program, and templates/resources via her Stan store (stan.store/fatimahsguide).
-- Finding unique, standout extracurriculars (not the usual clubs) - a core focus of Fatimah's Guide.
-- Creators: she grew Fatimah's Guide to 200M+ views / 250k+ followers; she shares how across her socials.
-- Founders/builders: she's shipped since 14 (3D-printing business, App Store apps, finnie); was in FoundHer House and the Founders Inc offseason cohort.
-
-PROJECTS
-- finnie - scholarship-search tool to help students afford college (findmescholarships.com).
-- Workout Wizard - a fitness companion that builds personalized workout plans.
-- Blackjack Jackpot Cards - an iOS card game shipped to the App Store, hand-coded pre-AI.
-- Stan store - templates + resources for students and creators (stan.store/fatimahsguide).
-- perky3dprints - a 3D-printing business she ran in high school that made five figures.
-- 2minMaths - a channel breaking down hard math concepts in 2 minutes (~20k TikTok, ~5k YouTube).
-
-BRANDS / PARTNERSHIPS
-- Tech: Microsoft, OpenAI, Adobe, Notion, Lovable, QuillBot, JobRight, Soundcore, Whop.
-- Consumer Goods: Clorox, Good Culture, Chiquita, Maruchan, Extra Gum, Zevo.
-- Education: Five Star, Lumiere Education, Aceable, CalKids, ABE.
-- Finance: Webull, Kraken.
-
-PRESS & AWARDS
-- ChatGPT Futures 2026 Awardee (OpenAI); Fast Company covered OpenAI's $10,000 student prize.
-- APP Accelerator - 1st place, $15,000 grant (HiiiWAY).
-- The New York Times & USA Today - featured for FoundHer House.
-- New York Times Square billboard (Karat x fatimahs.guide).
-- Web Dev Challenge S3E3; Tech Roast Show; TEDxYouth @ Shaftesbury ("Breaking the feedback loop from Hell"); KTVU Shark Tank youth competition; The Wildcat Tribune (3D-printing business); 2022 San Ramon Outstanding Teen Citizenship Award.
-
-BACKGROUND
-- Founding cohort of FoundHer House - all-female hacker house in SF; featured in NYT & USA Today; women in the house raised a combined $7M by the end of the cohort; members from Stanford, Berkeley, Cornell, USC.
-- TEDx talks in London and her hometown.
-- Ran children's business fairs in her hometown.
-
-LINKS
-- Instagram: instagram.com/fatimahs.guide (197k)
-- TikTok: tiktok.com/@fatimahs.guide (45k)
-- LinkedIn: linkedin.com/in/fatimah-hussain (20k)
-- Twitter/X: twitter.com/fatimahs_tech
-- Personal Instagram: instagram.com/fatim4hhussain
-- Stan store: stan.store/fatimahsguide
-- Email: ${CONTACT_EMAIL}
-`.trim();

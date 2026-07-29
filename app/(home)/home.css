@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+
+  /* Pulled from the graduation photo: the royal blue of the lei, the azure sky,
+     and the gold glitter on the cap. Blue carries the interface (buttons, links);
+     gold is decorative only — it never sets text, where it fails contrast. */
+  --color-ink: #10233f;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --color-accent: #1a4fb4;
+  --color-accent-dark: #143c8c;
+  --color-gold: #fdb515;
+}
+
+html {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+/* Grid-paper background */
+body {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  background-color: #f9fbfd;
+  /* Grid ruled in the photo's sky blue (#2e9bd8), at 7% so it reads as paper. */
+  background-image:
+    linear-gradient(to right, rgba(46, 155, 216, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(46, 155, 216, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-accent);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 35, 63, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: #c9d4e4;
+  box-shadow: 0 6px 20px rgba(16, 35, 63, 0.1);
+}
+
+/* The one featured offer wears the gold; every other card stays quiet. */
+.card-featured {
+  border-color: var(--color-gold);
+  box-shadow: 0 1px 2px rgba(16, 35, 63, 0.04), 0 0 0 3px rgba(253, 181, 21, 0.13);
+}
+.card-featured:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 6px 20px rgba(16, 35, 63, 0.1), 0 0 0 3px rgba(253, 181, 21, 0.2);
+}
+
+/* Rounded icon tile at the left of each offer. Blue by default; the featured
+   offer's tile picks up the gold it already wears on its chip and border. */
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Smaller on phones so it doesn't steal width from the title. */
+  height: 3rem;
+  width: 3rem;
+  border-radius: 12px;
+  background: rgba(26, 79, 180, 0.08);
+  color: var(--color-accent);
+}
+@media (min-width: 768px) {
+  .card-icon {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 14px;
+  }
+}
+.card-icon-featured {
+  background: rgba(253, 181, 21, 0.18);
+  color: var(--color-ink);
+}
+
+/* Section labels above each offer title. */
+.tag {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+/* Gold is a fill here, never ink — dark navy on gold keeps it legible. */
+.tag-featured {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--color-gold);
+  color: var(--color-ink);
+  letter-spacing: 0.14em;
+}
+
+.cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  border-radius: 10px;
+  padding: 0.8rem 1.1rem;
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--color-accent);
+  color: #fff;
+  transition: background 0.15s ease;
+}
+.cta:hover {
+  background: var(--color-accent-dark);
+}
+.cta-outline {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1.5px solid var(--color-accent);
+}
+.cta-outline:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* Email field in the newsletter card. */
+.news-input {
+  border: 1px solid #cbd3df;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  font-size: 15px;
+  background: #fff;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.news-input::placeholder {
+  color: var(--color-muted);
+  opacity: 0.7;
+}
+.news-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(26, 79, 180, 0.15);
+}
+/* Compact primary button that sits inline beside the email field (the shared
+   .cta stretches full-width, which would swallow the input). */
+.subscribe-btn {
+  border-radius: 10px;
+  padding: 0.85rem 3rem;
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  background: var(--color-accent);
+  color: #fff;
+  transition: background 0.15s ease;
+}
+.subscribe-btn:hover {
+  background: var(--color-accent-dark);
+}
+
+/* A not-yet-live offer: reads as a button but is inert. */
+.cta-soon {
+  display: block;
+  width: 100%;
+  text-align: center;
+  border-radius: 10px;
+  padding: 0.8rem 1.1rem;
+  font-weight: 700;
+  font-size: 15px;
+  background: rgba(26, 79, 180, 0.07);
+  color: var(--color-muted);
+  cursor: default;
+}
+

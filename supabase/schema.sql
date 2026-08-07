@@ -11,7 +11,7 @@ create table if not exists public.subscribers (
 
 -- Row Level Security on, with zero policies, means no one can read this table
 -- through the public API. The signup route uses the service role key, which
--- bypasses RLS — so writes still work, but a leaked anon key exposes nothing.
+-- bypasses RLS, so writes still work, but a leaked anon key exposes nothing.
 alter table public.subscribers enable row level security;
 
 -- Newest signups first when you browse the table.

@@ -6,7 +6,6 @@ const ADMITFOLIO_URL = "#";
 
 // Line icons drawn on a 24x24 grid to match the contact/social glyphs below.
 const ICONS = {
-  cap: ["M12 3 2 8l10 5 10-5-10-5Z", "M6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5", "M22 8v6"],
   layers: ["m12 2 9 5-9 5-9-5 9-5Z", "m3 12 9 5 9-5", "m3 17 9 5 9-5"],
   folder: ["M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"],
   people: [
@@ -37,17 +36,6 @@ type Offer = {
 
 const OFFERS: Offer[] = [
   {
-    tag: "Free tool",
-    icon: ICONS.cap,
-    title: "Find scholarships with finnie",
-    description:
-      "The scholarship search tool I'm building so students can actually afford college. Winner of an OpenAI ChatGPT Futures grant.",
-    price: "Free",
-    cta: "Try finnie",
-    url: "https://findmescholarships.com",
-    highlight: true,
-  },
-  {
     tag: "Marketplace",
     icon: ICONS.layers,
     title: "Admitfolio",
@@ -72,14 +60,14 @@ const OFFERS: Offer[] = [
     description:
       "I'm building a mentorship program for students working on college, scholarships, extracurriculars, and their own projects. Follow along to get in early.",
     cta: "Follow @fatimahs.guide",
-    url: "https://www.instagram.com/fatimahs.guide",
+    url: "https://fatimahs.guide",
   },
   {
     tag: "Community",
     icon: ICONS.chat,
     title: "Subscribe to the school community",
     description:
-      "Exclusive guides, live info sessions, and mentorship opportunities — a space to navigate college and your early career, together.",
+      "Exclusive guides, live info sessions, and mentorship opportunities: a space to navigate college and your early career, together.",
     cta: "Coming soon",
     comingSoon: true,
   },
@@ -152,7 +140,7 @@ function OfferCard({ o }: { o: Offer }) {
           </span>
           <div className="max-w-2xl">
             <span className={`tag ${o.highlight ? "tag-featured" : ""}`}>{o.tag}</span>
-            <h2 className="mt-2 font-sans text-[26px] font-bold leading-snug">{o.title}</h2>
+            <h2 className="mt-2 font-sans text-[26px] font-bold leading-snug tracking-tight">{o.title}</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-(--color-muted)">{o.description}</p>
           </div>
         </div>
@@ -185,13 +173,13 @@ export default function HomePage() {
           <img
             src="/about-me.jpg"
             alt="Fatimah Hussain"
-            className="h-36 w-36 shrink-0 rounded-full border-2 border-white object-cover shadow-md ring-2 ring-(--color-gold) md:h-44 md:w-44"
+            className="h-36 w-36 shrink-0 rounded-full border-4 border-white object-cover shadow-md ring-1 ring-(--color-line) md:h-44 md:w-44"
           />
           <div>
-            <h1 className="font-sans text-3xl font-bold tracking-tight md:text-4xl">
+            <h1 className="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
               fatimahs.guide
             </h1>
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-(--color-muted)">
+            <p className="mt-3 max-w-2xl font-sans text-[17px] leading-relaxed text-(--color-body)">
               I'm a UC Berkeley CS student and creator (200M+ views) helping students pay for
               college, build standout high school roadmaps, navigate tech tools to help them in
               their academic and early career journeys.

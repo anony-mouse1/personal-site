@@ -35,3 +35,5 @@ next-env.d.ts
 
 # Newsletter signups collected by the local-file fallback
 data/
+.vercel
+.vercel
